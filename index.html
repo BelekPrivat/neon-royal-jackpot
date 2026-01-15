@@ -231,10 +231,19 @@ function updateUI() {
 /* ───── LEADERBOARD ───── */
 async function loadLeaderboard() {
     const snap = await db.collection("players")
-        .orderBy("balance","desc").limit(10).get();
+        .orderBy("balance", "desc")
+        .limit(10)
+        .get();
+
     leaderboardList.innerHTML = "";
-    snap.forEach((d,i)=>{
-        leaderboardList.innerHTML += `${i+1}. ${d.id}: ${d.data().balance} €<br>`;
+
+    let rank = 1;
+
+    snap.forEach(doc => {
+        const data = doc.data();
+        leaderboardList.innerHTML +=
+            `${rank}. ${doc.id}: ${data.balance} €<br>`;
+        rank++;
     });
 }
 
@@ -244,4 +253,5 @@ loadLeaderboard();
 </script>
 </body>
 </html>
+
 
