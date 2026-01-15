@@ -107,6 +107,43 @@ h1 {
 </div>
 
 <script>
+
+async function loadLeaderboard() {
+    const snap = await db.collection("leaderboard")
+        .orderBy("balance", "desc")
+        .limit(10)
+        .get();
+
+    const list = document.getElementById("leaderboardList");
+    list.innerHTML = "";
+
+    snap.forEach(doc => {
+        const d = doc.data();
+        const row = document.createElement("div");
+        row.innerText = `👤 ${d.name}: 💰 ${d.balance} €`;
+        list.appendChild(row);
+    });
+}
+
+/* 🔥 FIREBASE SETUP */
+const firebaseConfig = {
+  apiKey: "AIzaSyBqJub5JZstuXNlemSLc9HFziEs11gA70k",
+  authDomain: "slot-site-dce13.firebaseapp.com",
+  projectId: "slot-site-dce13",
+};
+    
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let playerName = localStorage.getItem("player_name");
+
+if (!playerName) {
+    playerName = prompt("Willkommen! Bitte gib deinen Spielernamen ein:");
+    if (!playerName) playerName = "Gast" + Math.floor(Math.random() * 1000);
+    localStorage.setItem("player_name", playerName);
+}
+
+    
 const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","BAR","7️⃣","💎"];
 const JACKPOT_START = 5000;
 const MIN_BET = 10;
@@ -128,9 +165,20 @@ let data = JSON.parse(localStorage.getItem("slot_save")) || {
     totalWin: 0
 };
 
-function save() {
+async function saveGlobal() {
     localStorage.setItem("slot_save", JSON.stringify(data));
+
+    await db.collection("leaderboard")
+        .doc(playerName)
+        .set({
+            name: playerName,
+            balance: data.balance,
+            updated: Date.now()
+        });
 }
+
+<h3>🌍 Globales Leaderboard</h3>
+<div id="leaderboardList"></div>
 
 function updateUI() {
     document.getElementById("status").innerText =
@@ -206,8 +254,9 @@ function finishSpin() {
         document.getElementById("info").innerText = "😢 Kein Gewinn";
     }
 
-    save();
+    saveGlobal();
     updateUI();
+    loadLeaderboard();
 }
 
 function setBet() {
@@ -230,4 +279,5 @@ updateUI();
 </script>
 </body>
 </html>
+
 
