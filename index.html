@@ -123,11 +123,48 @@ firebase.initializeApp({
 const db = firebase.firestore();
 
 /* ───── NAME ───── */
+<script>
+/* ───── NAME (MAX 10 ZEICHEN & EINZIGARTIG) ───── */
 let playerName = localStorage.getItem("player_name");
-if (!playerName) {
-    playerName = prompt("Spielername:");
-    localStorage.setItem("player_name", playerName);
+
+async function askForName() {
+    while (true) {
+        let name = prompt("Spielername (max. 10 Zeichen):");
+
+        if (!name) continue;
+
+        name = name.trim();
+
+        if (name.length === 0) {
+            alert("Name darf nicht leer sein!");
+            continue;
+        }
+
+        if (name.length > 10) {
+            alert("Maximal 10 Zeichen erlaubt!");
+            continue;
+        }
+
+        // Prüfen ob Name schon existiert (Firebase)
+        const doc = await db.collection("players").doc(name).get();
+
+        if (doc.exists) {
+            alert("Dieser Name ist bereits vergeben!");
+            continue;
+        }
+
+        // Name ist gültig
+        playerName = name;
+        localStorage.setItem("player_name", playerName);
+        break;
+    }
 }
+
+// Wenn kein gespeicherter Name existiert → neu abfragen
+if (!playerName) {
+    askForName();
+}
+</script>
 
 /* ───── KONFIG ───── */
 const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
@@ -253,5 +290,6 @@ loadLeaderboard();
 </script>
 </body>
 </html>
+
 
 
