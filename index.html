@@ -2,91 +2,55 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>🎰 Neon Royal Jackpot</title>
-
-<!-- 🔥 Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<title>🎰 Slot Test</title>
 
 <style>
-html, body {
+body {
     margin: 0;
-    padding: 0;
     background: #111;
     color: white;
-    font-family: Arial, sans-serif;
-    height: 100%;
+    font-family: Arial;
 }
 
-#app {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-/* 🎰 SLOT */
 #slot {
     text-align: center;
+    margin-top: 50px;
 }
-
-h1 {
-    color: gold;
-    font-size: 3rem;
-}
-
-.status { color: cyan; margin: 10px; }
-.jackpot { color: gold; margin-bottom: 20px; }
 
 .reels {
     display: flex;
-    gap: 30px;
     justify-content: center;
-    margin: 20px;
+    gap: 20px;
 }
 
 .reel {
-    font-size: 5rem;
+    font-size: 4rem;
     background: black;
     padding: 20px;
-    border: 5px ridge #555;
-    width: 100px;
+    border: 4px ridge gold;
 }
 
-.controls button {
+button {
+    margin: 10px;
+    padding: 10px 20px;
     font-size: 1.1rem;
-    padding: 12px;
-    margin: 5px;
 }
 
-.spin { background: green; color: white; }
-.allin { background: red; color: white; }
-
-/* 🌍 LEADERBOARD */
 #leaderboard {
     position: fixed;
     top: 20px;
     right: 20px;
-    background: #000;
     border: 2px solid gold;
-    padding: 15px;
-    width: 250px;
-}
-
-#leaderboard h3 {
-    margin-top: 0;
-    color: gold;
+    padding: 10px;
 }
 </style>
 </head>
 
 <body>
-<div id="app">
 
 <div id="slot">
-    <h1>🎰 NEON ROYAL JACKPOT 🎰</h1>
-    <div class="status" id="status"></div>
-    <div class="jackpot" id="jackpot"></div>
+    <h1>🎰 SLOT TEST</h1>
+    <div id="status"></div>
 
     <div class="reels">
         <div class="reel" id="r1">❔</div>
@@ -94,104 +58,51 @@ h1 {
         <div class="reel" id="r3">❔</div>
     </div>
 
-    <div id="info"></div>
-
-    <div class="controls">
-        <button onclick="setBet()">🎯 Einsatz</button>
-        <button class="allin" onclick="allIn()">💥 ALL IN</button>
-        <button class="spin" onclick="spin()">▶ SPIN</button>
-    </div>
+    <button onclick="spin()">▶ SPIN</button>
 </div>
 
-</div>
-
-<!-- 🌍 LEADERBOARD -->
 <div id="leaderboard">
-    <h3>🌍 Leaderboard</h3>
+    <h3>Leaderboard</h3>
     <div id="leaderboardList"></div>
 </div>
 
 <script>
-// 🔥 Firebase Setup
-firebase.initializeApp({
-  apiKey: "AIzaSyBqJub5JZstuXNlemSLc9HFziEs11gA70k",
-  authDomain: "slot-site-dce13.firebaseapp.com",
-  projectId: "slot-site-dce13",
-});
-const db = firebase.firestore();
+const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
+let balance = 500;
 
-// 👤 Spielername
-let playerName = localStorage.getItem("player_name");
-if (!playerName) {
-    playerName = prompt("Spielername:");
-    localStorage.setItem("player_name", playerName || "Gast");
-}
-
-// 🎰 Spiel-Daten
-const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","BAR","7️⃣","💎"];
-let data = JSON.parse(localStorage.getItem("slot_save")) || {
-    balance: 500,
-    bet: 10,
-    jackpot: 5000
-};
+const statusEl = document.getElementById("status");
+const r1 = document.getElementById("r1");
+const r2 = document.getElementById("r2");
+const r3 = document.getElementById("r3");
+const leaderboardList = document.getElementById("leaderboardList");
 
 function updateUI() {
-    status.innerText = `💰 ${data.balance} € | 🎯 ${data.bet} €`;
-    jackpot.innerText = `💎 Jackpot: ${data.jackpot} €`;
-}
-
-async function saveGlobal() {
-    localStorage.setItem("slot_save", JSON.stringify(data));
-    await db.collection("leaderboard").doc(playerName).set({
-        name: playerName,
-        balance: data.balance
-    });
-}
-
-async function loadLeaderboard() {
-    const snap = await db.collection("leaderboard")
-        .orderBy("balance","desc")
-        .limit(10).get();
-
-    leaderboardList.innerHTML = "";
-    snap.forEach(doc => {
-        leaderboardList.innerHTML += `👤 ${doc.data().name}: 💰 ${doc.data().balance} €<br>`;
-    });
+    statusEl.innerText = `💰 Kontostand: ${balance} €`;
 }
 
 function spin() {
-    if (data.balance < data.bet) return;
-    data.balance -= data.bet;
-    data.jackpot += Math.floor(data.bet * 0.05);
+    if (balance < 10) return;
+    balance -= 10;
 
-    let res = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
-    r1.innerText = r2.innerText = r3.innerText = res;
+    r1.innerText = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+    r2.innerText = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+    r3.innerText = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
 
-    if (Math.random() < 0.05) {
-        data.balance += data.bet * 10;
-        info.innerText = "🏆 GEWONNEN!";
-    } else {
-        info.innerText = "😢 Kein Gewinn";
+    if (Math.random() < 0.2) {
+        balance += 50;
     }
 
-    saveGlobal();
     updateUI();
-    loadLeaderboard();
+    updateLeaderboard();
 }
 
-function setBet() {
-    let v = prompt("Einsatz:", data.bet);
-    if (v) data.bet = Math.min(parseInt(v), data.balance);
-    updateUI();
-}
-
-function allIn() {
-    data.bet = data.balance;
-    updateUI();
+function updateLeaderboard() {
+    leaderboardList.innerHTML = `👤 Du: ${balance} €`;
 }
 
 updateUI();
-loadLeaderboard();
+updateLeaderboard();
 </script>
+
 </body>
 </html>
