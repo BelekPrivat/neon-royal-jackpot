@@ -90,7 +90,7 @@ h1 { color: gold; font-size: 3rem; }
 <div id="layout">
 
 <div id="app">
-    <h1>🎰 NEON ROYAL JACKPOT 🎰</h1>
+    <h1>🎰 Belek´s Slot-Maschine 🎰</h1>
     <div class="status" id="status"></div>
     <div class="jackpot" id="jackpot"></div>
     <div class="status" id="timer"></div>
@@ -196,23 +196,29 @@ setInterval(() => {
     }
 
     const remain = Math.max(0, INTERVAL - (now - data.lastIncome));
-    timer.innerText = `⏳ Einkommen in ${Math.ceil(remain/1000)}s`;
+    timer.innerText = `⏳ Einkommen in ${Math.ceil(remain / 1000)}s`;
 }, 1000);
 
-/* ───── SLOT ───── */
+/* ───── SLOT (FIXED LOGIC) ───── */
 function randomSym() {
     return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
 }
 
 function spin() {
     if (data.balance < data.bet) return;
+
     data.balance -= data.bet;
 
-    r1.innerText = randomSym();
-    r2.innerText = randomSym();
-    r3.innerText = randomSym();
+    const s1 = randomSym();
+    const s2 = randomSym();
+    const s3 = randomSym();
 
-    if (Math.random() < 0.2) {
+    r1.innerText = s1;
+    r2.innerText = s2;
+    r3.innerText = s3;
+
+    // ✅ Gewinn NUR wenn Anzeige passt
+    if (s1 === s2 && s2 === s3) {
         data.balance += data.bet * 5;
     }
 
@@ -251,7 +257,8 @@ async function loadLeaderboard() {
     leaderboardList.innerHTML = "";
     let i = 1;
     snap.forEach(doc => {
-        leaderboardList.innerHTML += `${i}. ${doc.id}: ${doc.data().balance} €<br>`;
+        leaderboardList.innerHTML +=
+            `${i}. ${doc.id}: ${doc.data().balance} €<br>`;
         i++;
     });
 }
@@ -266,4 +273,3 @@ async function loadLeaderboard() {
 
 </body>
 </html>
-
