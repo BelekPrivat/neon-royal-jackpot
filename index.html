@@ -249,7 +249,7 @@ function spin() {
 /* WIN LOG */
 function addWinLog(text) {
     winLog.unshift(text);
-    winLog = winLog.slice(0,5);
+    winLog = winLog.slice(0,15);
     document.getElementById("winLog").innerHTML = winLog.join("<br>");
 }
 
@@ -285,6 +285,7 @@ loadLeaderboard();
 
 </body>
 </html>
+
 
 
 
