@@ -8,158 +8,59 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    background: #111;
-    color: white;
-    font-family: Arial;
-    height: 100%;
+html,body{
+    margin:0;padding:0;height:100%;
+    background:#111;color:white;font-family:Arial;
 }
+#layout{display:flex;height:100vh}
 
-#layout {
-    display: flex;
-    height: 100vh;
+/* SPIEL */
+#app{
+    width:55%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center
 }
-
-/* ===== SPIEL ===== */
-#app {
-    width: 55%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+h1{color:gold;font-size:2.5rem}
+.status{color:cyan}
+.jackpot{color:gold;font-size:1.8rem;text-shadow:0 0 10px gold}
+.reels{display:flex;gap:25px;margin:15px 0}
+.reel{
+    font-size:4.5rem;background:black;padding:18px;
+    border:5px ridge gold;width:95px;text-align:center
 }
+.controls button{font-size:1rem;padding:10px 16px;margin:4px}
+.spin{background:green;color:white}
+.allin{background:red;color:white}
+.player-info{color:cyan;font-size:1.2rem}
 
-h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
-
-.status { color: cyan; font-size: 1.1rem; }
-
-.jackpot {
-    color: gold;
-    font-size: 1.9rem;
-    font-weight: bold;
-    text-shadow: 0 0 10px gold;
+/* RECHTS */
+#right{
+    width:45%;padding:12px;
+    border-left:4px solid gold;
+    display:flex;flex-direction:column;gap:12px
 }
-
-.reels {
-    display: flex;
-    gap: 25px;
-    margin: 15px 0;
+#leaderboardList,#winLog,#paytable{
+    background:#000;border:2px solid gold;
+    border-radius:12px;padding:10px
 }
-
-.reel {
-    font-size: 4.5rem;
-    background: black;
-    padding: 18px;
-    border: 5px ridge gold;
-    width: 95px;
-    text-align: center;
+#leaderboardList div{
+    display:flex;justify-content:space-between;
+    border-bottom:1px solid #333;padding:4px
 }
-
-.controls button {
-    font-size: 1.05rem;
-    padding: 10px 16px;
-    margin: 4px;
+#leaderboardList div:last-child{border:none}
+#winLog{flex:1;overflow-y:auto}
+.log-entry{margin-bottom:5px;font-weight:bold}
+.log-win{color:#00ff7f}
+.log-lose{color:#ff4c4c}
+.log-jackpot{color:gold}
+#paytable table{width:100%;border-collapse:collapse}
+#paytable td,#paytable th{
+    padding:6px;text-align:center;border-bottom:1px solid #333
 }
-
-.spin { background: green; color: white; }
-.allin { background: red; color: white; }
-
-.player-info {
-    font-size: 1.25rem;
-    color: cyan;
-    margin-top: 8px;
-}
-
-/* ===== RECHTS ===== */
-#right {
-    width: 45%;
-    background: black;
-    border-left: 4px solid gold;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* ===== LEADERBOARD ===== */
-#leaderboardBox {
-    flex: 0 0 30%;
-}
-
-#leaderboardList {
-    background: linear-gradient(180deg, #111, #000);
-    border: 2px solid gold;
-    border-radius: 12px;
-    padding: 10px;
-}
-
-#leaderboardList div {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 6px;
-    border-bottom: 1px solid #333;
-}
-#leaderboardList div:last-child { border-bottom: none; }
-
-/* ===== GEWINN LOG ===== */
-#winBox {
-    flex: 0 0 35%;
-}
-
-#winLog {
-    height: 100%;
-    border: 2px solid gold;
-    border-radius: 10px;
-    padding: 8px;
-    background: linear-gradient(180deg, #111, #000);
-    overflow-y: auto;
-    font-size: 1rem;
-}
-
-.log-entry {
-    padding: 5px 6px;
-    margin-bottom: 5px;
-    border-radius: 6px;
-    font-weight: bold;
-}
-
-.log-win { color: #00ff7f; }
-.log-lose { color: #ff4c4c; }
-.log-jackpot { color: gold; }
-
-/* ===== PAYTABLE ===== */
-#paytable {
-    flex: 1;
-    background: radial-gradient(circle at top, #222, #000);
-    border: 2px solid gold;
-    border-radius: 12px;
-    padding: 10px;
-}
-
-#paytable table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 1.05rem;
-}
-
-#paytable th {
-    color: gold;
-    padding: 6px;
-    border-bottom: 1px solid gold;
-}
-
-#paytable td {
-    padding: 6px;
-    text-align: center;
-    border-bottom: 1px solid #333;
-}
+#paytable th{color:gold}
 </style>
 </head>
 
 <body>
-
 <div id="layout">
 
 <div id="app">
@@ -184,185 +85,143 @@ h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
 </div>
 
 <div id="right">
+    <h3 style="text-align:center;color:gold">🏆 Leaderboard</h3>
+    <div id="leaderboardList"></div>
 
-    <div id="leaderboardBox">
-        <h3 style="text-align:center;color:gold;">🏆 Leaderboard</h3>
-        <div id="leaderboardList"></div>
-    </div>
-
-    <div id="winBox">
-        <h3 style="text-align:center;color:gold;">🧾 Gewinne</h3>
-        <div id="winLog"></div>
-    </div>
+    <h3 style="text-align:center;color:gold">🧾 Gewinne</h3>
+    <div id="winLog"></div>
 
     <div id="paytable">
         <table>
-            <tr><th>Kombi</th><th>Multiplikator</th></tr>
-            <tr><td>🍒🍒🍒</td><td>x2</td></tr>
-            <tr><td>🍋🍋🍋</td><td>x3</td></tr>
-            <tr><td>🍊🍊🍊</td><td>x5</td></tr>
-            <tr><td>🔔🔔🔔</td><td>x8</td></tr>
-            <tr><td>⭐⭐⭐</td><td>x10</td></tr>
-            <tr><td>7️⃣7️⃣7️⃣</td><td>x20</td></tr>
-            <tr><td>💎💎💎</td><td>JACKPOT</td></tr>
+            <tr><th>Kombi</th><th>x</th></tr>
+            <tr><td>🍒🍒🍒</td><td>2</td></tr>
+            <tr><td>🍋🍋🍋</td><td>3</td></tr>
+            <tr><td>🍊🍊🍊</td><td>5</td></tr>
+            <tr><td>🔔🔔🔔</td><td>8</td></tr>
+            <tr><td>⭐⭐⭐</td><td>10</td></tr>
+            <tr><td>7️⃣7️⃣7️⃣</td><td>20</td></tr>
+            <tr><td>💎💎💎</td><td>JP</td></tr>
         </table>
     </div>
-
 </div>
+
 </div>
 
 <script>
 firebase.initializeApp({
-  apiKey: "AIzaSyBqJub5JZstuXNlemSLc9HFziEs11gA70k",
-  authDomain: "slot-site-dce13.firebaseapp.com",
-  projectId: "slot-site-dce13"
+  apiKey:"AIzaSyBqJub5JZstuXNlemSLc9HFziEs11gA70k",
+  authDomain:"slot-site-dce13.firebaseapp.com",
+  projectId:"slot-site-dce13"
 });
 
-const db = firebase.firestore();
-const jackpotRef = db.collection("game").doc("jackpot");
+const db=firebase.firestore();
+const jackpotRef=db.collection("game").doc("jackpot");
 
-const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
-const PAYTABLE = { "🍒":2,"🍋":3,"🍊":5,"🔔":8,"⭐":10,"7️⃣":20 };
+const SYMBOLS=["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
+const PAYTABLE={"🍒":2,"🍋":3,"🍊":5,"🔔":8,"⭐":10,"7️⃣":20};
 
-const INCOME_PER_MIN = 5;
-const INTERVAL = 60000;
+const INCOME_PER_MIN=5;
+const INTERVAL=60000;
 
-const winLogEl = document.getElementById("winLog");
+let playerName=localStorage.getItem("player_name");
+if(!playerName||playerName.length>10){
+    playerName=prompt("Name (max 10 Zeichen):").slice(0,10);
+    localStorage.setItem("player_name",playerName);
+}
 
-let playerName = localStorage.getItem("player_name") || prompt("Spielername:");
-localStorage.setItem("player_name", playerName);
+let data={balance:5000,bet:10,lastIncome:Date.now()};
+let jackpotValue=5000;
+let winLog=[];
+let spinning=false;
 
-let data = { balance: 5000, bet: 10, lastIncome: Date.now() };
-let jackpotValue = 5000;
-let winLog = [];
-let spinning = false;
+function savePlayer(){
+    db.collection("players").doc(playerName).set(data);
+}
 
-/* LIVE JACKPOT */
+/* JACKPOT */
 jackpotRef.onSnapshot(d=>{
-    if(d.exists){
-        jackpotValue=d.data().value;
-        updateUI();
-    }
+    jackpotValue=d.exists?d.data().value||5000:5000;
+    document.getElementById("jackpot").innerText=`💎 JACKPOT: ${jackpotValue} €`;
 });
 
-/* OFFLINE-INCOME FIX */
+/* PLAYER */
 async function loadPlayer(){
     const ref=db.collection("players").doc(playerName);
     const doc=await ref.get();
     if(doc.exists) data=doc.data();
-
-    const now=Date.now();
-    const diff=Math.floor((now-data.lastIncome)/INTERVAL);
-    if(diff>0){
-        data.balance+=diff*INCOME_PER_MIN;
-        data.lastIncome+=diff*INTERVAL;
-    }
-    await ref.set(data);
     updateUI();
 }
 
-setInterval(() => {
-    const now = Date.now();
+/* TIMER & INCOME (MIT GEWINN-LOG) */
+setInterval(()=>{
+    const now=Date.now();
+    const mins=Math.floor((now-data.lastIncome)/INTERVAL);
 
-    // wie viele volle Minuten sind vergangen?
-    const passedMinutes = Math.floor((now - data.lastIncome) / INTERVAL);
-
-    if (passedMinutes > 0) {
-        const income = passedMinutes * INCOME_PER_MIN;
-        data.balance += income;
-        data.lastIncome += passedMinutes * INTERVAL;
-
+    if(mins>0){
+        const income=mins*INCOME_PER_MIN;
+        data.balance+=income;
+        data.lastIncome+=mins*INTERVAL;
         savePlayer();
         updateUI();
-        addWinLog(`⏳ Einkommen: +${income}€`, "win");
+        log(`⏳ Einkommen +${income}€`,"win");
     }
 
-    // saubere Countdown-Anzeige
-    const remaining = Math.max(
-        0,
-        INTERVAL - (now - data.lastIncome)
-    );
+    const rest=Math.max(0,INTERVAL-(now-data.lastIncome));
+    timer.innerText=`⏳ +5€ in ${Math.ceil(rest/1000)}s`;
+},1000);
 
-    timer.innerText = `⏳ +5€ in ${Math.ceil(remaining / 1000)}s`;
-}, 1000);
-
-
-function randomSym(){ return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]; }
-
-async function spin(){
-    if(spinning||data.balance<data.bet) return;
+function spin(){
+    if(spinning||data.balance<data.bet)return;
     spinning=true;
-
     data.balance-=data.bet;
     jackpotValue+=data.bet;
-    await jackpotRef.set({value:jackpotValue});
+    jackpotRef.set({value:jackpotValue});
 
-    const f1=randomSym(),f2=randomSym(),f3=randomSym();
-    animate(r1,f1,600); animate(r2,f2,800); animate(r3,f3,1000);
+    const f1=rand(),f2=rand(),f3=rand();
+    anim(r1,f1,600);anim(r2,f2,800);anim(r3,f3,1000);
 
-    setTimeout(async()=>{
+    setTimeout(()=>{
         if(f1===f2&&f2===f3){
             if(f1==="💎"){
                 data.balance+=jackpotValue;
                 log(`💎 JACKPOT +${jackpotValue}€`,"jackpot");
                 jackpotValue=5000;
-                await jackpotRef.set({value:jackpotValue});
-            } else {
+                jackpotRef.set({value:jackpotValue});
+            }else{
                 const win=data.bet*PAYTABLE[f1];
                 data.balance+=win;
                 log(`🎉 ${f1}${f2}${f3} +${win}€`,"win");
             }
-        } else log("❌ Kein Gewinn","lose");
+        }else log("❌ Kein Gewinn","lose");
 
-        await db.collection("players").doc(playerName).set(data);
-        updateUI(); loadLeaderboard(); spinning=false;
+        savePlayer();updateUI();spinning=false;
     },1100);
 }
 
-function animate(r,f,d){
-    const s=Date.now();
-    const i=setInterval(()=>{
-        r.innerText=randomSym();
-        if(Date.now()-s>=d){ clearInterval(i); r.innerText=f; }
+function rand(){return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]}
+function anim(r,f,d){
+    const s=Date.now(),i=setInterval(()=>{
+        r.innerText=rand();
+        if(Date.now()-s>=d){clearInterval(i);r.innerText=f}
     },70);
 }
-
-function log(t,type){
-    let c="log-entry "+(type==="win"?"log-win":type==="lose"?"log-lose":"log-jackpot");
-    winLog.unshift(`<div class="${c}">${t}</div>`);
+function log(t,c){
+    winLog.unshift(`<div class="log-entry log-${c}">${t}</div>`);
     winLog=winLog.slice(0,10);
     winLogEl.innerHTML=winLog.join("");
 }
-
 function updateUI(){
     status.innerText=`👤 ${playerName}`;
-    jackpot.innerText=`💎 JACKPOT: ${jackpotValue} €`;
     playerInfo.innerText=`💰 ${data.balance} € | 🎯 Einsatz ${data.bet} €`;
 }
-
 function setBet(){
     const v=parseInt(prompt("Einsatz:",data.bet));
-    if(v>0&&v<=data.balance) data.bet=v;
+    if(v>0&&v<=data.balance)data.bet=v;
     updateUI();
 }
-function allIn(){ data.bet=data.balance; updateUI(); }
-
-async function loadLeaderboard(){
-    const s=await db.collection("players").orderBy("balance","desc").limit(10).get();
-    leaderboardList.innerHTML="";
-    let i=1;
-    s.forEach(d=>{
-        leaderboardList.innerHTML+=
-        `<div><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
-        i++;
-    });
-}
+function allIn(){data.bet=data.balance;updateUI();}
 
 loadPlayer();
-loadLeaderboard();
 </script>
-
 </body>
 </html>
-
-
