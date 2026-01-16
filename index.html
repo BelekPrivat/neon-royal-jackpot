@@ -16,21 +16,18 @@ html, body {
     font-family: Arial;
     height: 100%;
 }
-
-#layout {
-    display: flex;
-    height: 100vh;
-}
+#layout { display: flex; height: 100vh; }
 
 #app {
     width: 55%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 h1 { color: gold; font-size: 3rem; }
+
 .status { color: cyan; font-size: 1.2rem; }
 
 .jackpot {
@@ -38,7 +35,6 @@ h1 { color: gold; font-size: 3rem; }
     font-size: 2rem;
     font-weight: bold;
     text-shadow: 0 0 10px gold;
-    margin-bottom: 5px;
 }
 
 .reels {
@@ -66,9 +62,9 @@ h1 { color: gold; font-size: 3rem; }
 .allin { background: red; color: white; }
 
 .player-info {
-    margin-top: 15px;
     font-size: 1.4rem;
     color: cyan;
+    margin-top: 10px;
 }
 
 #right {
@@ -83,7 +79,7 @@ h1 { color: gold; font-size: 3rem; }
 .section h3 { color: gold; text-align: center; }
 
 #winLog {
-    min-height: 320px;
+    min-height: 300px;
     border: 1px solid gold;
     padding: 10px;
     background: #111;
@@ -97,9 +93,10 @@ h1 { color: gold; font-size: 3rem; }
 
 <div id="app">
     <h1>🎰 Belek´s Slot-Maschine 🎰</h1>
-    <div class="status" id="status"></div>
-    <div class="jackpot" id="jackpotEl">💎 JACKPOT: 5000 €</div>
-    <div class="status" id="timer"></div>
+
+    <div id="status" class="status"></div>
+    <div id="jackpot" class="jackpot">💎 JACKPOT: 5000 €</div>
+    <div id="timer" class="status"></div>
 
     <div class="reels">
         <div class="reel" id="r1">❔</div>
@@ -136,39 +133,34 @@ firebase.initializeApp({
   authDomain: "slot-site-dce13.firebaseapp.com",
   projectId: "slot-site-dce13"
 });
-const db = firebase.firestore();
 
-/* KONSTANTEN */
+const db = firebase.firestore();
+const jackpotRef = db.collection("game").doc("jackpot");
+
 const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
 const PAYTABLE = { "🍒":2,"🍋":3,"🍊":5,"🔔":8,"⭐":10,"7️⃣":20 };
-const INTERVAL = 60000;
-const INCOME_PER_MIN = 5;
 
-/* STATE */
+const INCOME_PER_MIN = 5;
+const INTERVAL = 60000;
+
+const winLogEl = document.getElementById("winLog");
+
 let playerName = localStorage.getItem("player_name") || prompt("Spielername:");
 localStorage.setItem("player_name", playerName);
 
 let data = { balance: 5000, bet: 10, lastIncome: Date.now() };
 let jackpotValue = 5000;
-let spinning = false;
 let winLog = [];
+let spinning = false;
 
-/* REFS */
-const jackpotRef = db.collection("game").doc("jackpot");
+/* 🔴 LIVE JACKPOT */
+jackpotRef.onSnapshot(doc => {
+    if (doc.exists) {
+        jackpotValue = doc.data().value;
+        updateUI();
+    }
+});
 
-/* JACKPOT */
-async function loadJackpot() {
-    const doc = await jackpotRef.get();
-    if (doc.exists) jackpotValue = doc.data().value;
-    else await jackpotRef.set({ value: jackpotValue });
-    updateUI();
-}
-
-function saveJackpot() {
-    return jackpotRef.set({ value: jackpotValue });
-}
-
-/* PLAYER */
 async function loadPlayer() {
     const ref = db.collection("players").doc(playerName);
     const doc = await ref.get();
@@ -181,7 +173,6 @@ function savePlayer() {
     db.collection("players").doc(playerName).set(data);
 }
 
-/* TIMER */
 setInterval(() => {
     const now = Date.now();
     if (now - data.lastIncome >= INTERVAL) {
@@ -193,7 +184,6 @@ setInterval(() => {
         `⏳ Einkommen in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
 }, 1000);
 
-/* SLOT */
 function randomSym() {
     return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
 }
@@ -204,24 +194,25 @@ async function spin() {
 
     data.balance -= data.bet;
     jackpotValue += data.bet;
-    await saveJackpot();
+    await jackpotRef.set({ value: jackpotValue });
 
-    const s1=randomSym(), s2=randomSym(), s3=randomSym();
-    animateReel(r1,s1,800);
-    animateReel(r2,s2,1100);
-    animateReel(r3,s3,1400);
+    const f1 = randomSym(), f2 = randomSym(), f3 = randomSym();
 
-    setTimeout(async () => {
-        if (s1===s2 && s2===s3) {
-            if (s1==="💎") {
+    animateReel(r1,f1,800);
+    animateReel(r2,f2,1100);
+    animateReel(r3,f3,1400);
+
+    setTimeout(async ()=>{
+        if (f1===f2 && f2===f3) {
+            if (f1==="💎") {
                 data.balance += jackpotValue;
-                addWinLog(`💎💎💎 JACKPOT! +${jackpotValue} €`);
+                addWinLog(`💎 JACKPOT! +${jackpotValue} €`);
                 jackpotValue = 5000;
-                await saveJackpot();
+                await jackpotRef.set({ value: jackpotValue });
             } else {
-                const win = data.bet * PAYTABLE[s1];
+                const win = data.bet * PAYTABLE[f1];
                 data.balance += win;
-                addWinLog(`🎉 ${s1}${s2}${s3} → +${win} €`);
+                addWinLog(`🎉 ${f1}${f2}${f3} → +${win} €`);
             }
         } else {
             addWinLog("❌ Kein Gewinn");
@@ -231,59 +222,59 @@ async function spin() {
         updateUI();
         loadLeaderboard();
         spinning = false;
-    }, 1500);
+    },1500);
 }
 
-/* ANIMATION */
-function animateReel(el, final, dur) {
+function animateReel(reel,finalSymbol,duration){
     const start = Date.now();
     const i = setInterval(()=>{
-        el.innerText = randomSym();
-        if (Date.now()-start>=dur){
+        reel.innerText = randomSym();
+        if (Date.now()-start>=duration){
             clearInterval(i);
-            el.innerText = final;
+            reel.innerText = finalSymbol;
         }
     },80);
 }
 
-/* UI */
-function addWinLog(t){
-    winLog.unshift(t);
-    winLog=winLog.slice(0,15);
-    winLogEl.innerHTML=winLog.join("<br>");
+function addWinLog(text){
+    winLog.unshift(text);
+    winLog = winLog.slice(0,15);
+    winLogEl.innerHTML = winLog.join("<br>");
 }
 
-function updateUI() {
+function updateUI(){
     status.innerText = `👤 ${playerName}`;
-    jackpotEl.innerText = `💎 JACKPOT: ${jackpotValue} €`;
+    jackpot.innerText = `💎 JACKPOT: ${jackpotValue} €`;
     playerInfo.innerText = `💰 ${data.balance} € | 🎯 Einsatz: ${data.bet} €`;
 }
 
-/* BET */
 function setBet(){
-    const v=parseInt(prompt("Einsatz:",data.bet));
-    if(v>0&&v<=data.balance) data.bet=v;
+    const v = parseInt(prompt("Einsatz:",data.bet));
+    if(v>0 && v<=data.balance) data.bet=v;
     updateUI();
 }
-function allIn(){ data.bet=data.balance; updateUI(); }
 
-/* LEADERBOARD */
+function allIn(){
+    data.bet=data.balance;
+    updateUI();
+}
+
 async function loadLeaderboard(){
-    const s=await db.collection("players").orderBy("balance","desc").limit(10).get();
+    const snap = await db.collection("players")
+        .orderBy("balance","desc")
+        .limit(10)
+        .get();
     leaderboardList.innerHTML="";
     let i=1;
-    s.forEach(d=>{
-        leaderboardList.innerHTML+=`${i}. ${d.id}: ${d.data().balance} €<br>`;
+    snap.forEach(d=>{
+        leaderboardList.innerHTML +=
+            `${i}. ${d.id}: ${d.data().balance} €<br>`;
         i++;
     });
 }
 
-/* INIT */
-(async()=>{
-    await loadJackpot();
-    await loadPlayer();
-    loadLeaderboard();
-})();
+loadPlayer();
+loadLeaderboard();
 </script>
 
 </body>
