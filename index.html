@@ -31,8 +31,9 @@ html, body {
 }
 
 h1 { color: gold; font-size: 3rem; }
+
 .status { color: cyan; font-size: 1.2rem; }
-.jackpot { color: gold; font-size: 1.6rem; margin-bottom: 10px; }
+.jackpot { color: gold; font-size: 1.5rem; }
 
 .reels {
     display: flex;
@@ -64,7 +65,7 @@ h1 { color: gold; font-size: 3rem; }
     color: cyan;
 }
 
-#leaderboard {
+#right {
     width: 45%;
     background: black;
     border-left: 4px solid gold;
@@ -76,33 +77,33 @@ h1 { color: gold; font-size: 3rem; }
 .section h3 { color: gold; text-align: center; }
 
 #winLog {
-    min-height: 300px;
+    min-height: 200px;
     border: 1px solid gold;
     padding: 10px;
+    background: #111;
 }
 
 #paytable table {
     width: 100%;
     border-collapse: collapse;
 }
-
 #paytable th, #paytable td {
     border-bottom: 1px solid #555;
     padding: 6px;
     text-align: center;
 }
-
 #paytable th { color: gold; }
 </style>
 </head>
 
 <body>
+
 <div id="layout">
 
 <div id="app">
     <h1>🎰 Belek´s Slot-Maschine 🎰</h1>
     <div class="status" id="status"></div>
-    <div class="jackpot" id="jackpot">💎 JACKPOT: 5000 €</div>
+    <div class="jackpot" id="jackpot"></div>
     <div class="status" id="timer"></div>
 
     <div class="reels">
@@ -120,7 +121,8 @@ h1 { color: gold; font-size: 3rem; }
     <div id="playerInfo" class="player-info"></div>
 </div>
 
-<div id="leaderboard">
+<div id="right">
+
     <div class="section">
         <h3>🏆 Leaderboard</h3>
         <div id="leaderboardList"></div>
@@ -128,7 +130,7 @@ h1 { color: gold; font-size: 3rem; }
 
     <div class="section">
         <h3>🧾 Gewinn-Log</h3>
-        <div id="winLog">Noch keine Spins 🎰</div>
+        <div id="winLog"></div>
     </div>
 
     <div class="section" id="paytable">
@@ -141,9 +143,10 @@ h1 { color: gold; font-size: 3rem; }
             <tr><td>🔔🔔🔔</td><td>x8</td></tr>
             <tr><td>⭐⭐⭐</td><td>x10</td></tr>
             <tr><td>7️⃣7️⃣7️⃣</td><td>x20</td></tr>
-            <tr><td>💎💎💎</td><td>JACKPOT 💎</td></tr>
+            <tr><td>💎💎💎</td><td>JACKPOT</td></tr>
         </table>
     </div>
+
 </div>
 </div>
 
@@ -157,83 +160,27 @@ const db = firebase.firestore();
 
 const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
 const PAYTABLE = { "🍒":2,"🍋":3,"🍊":5,"🔔":8,"⭐":10,"7️⃣":20 };
-
-const INTERVAL = 60000;
 const INCOME_PER_MIN = 5;
+const INTERVAL = 60000;
 
 let playerName = localStorage.getItem("player_name") || prompt("Spielername:");
 localStorage.setItem("player_name", playerName);
 
 let data = { balance: 5000, bet: 10, lastIncome: Date.now() };
+let jackpot = 5000;
 let winLog = [];
-let jackpotValue = 5000;
 
 const jackpotRef = db.collection("game").doc("jackpot");
 
 async function loadJackpot() {
-    const doc = await jackpotRef.get();
-    if (doc.exists) jackpotValue = doc.data().value;
-    else await jackpotRef.set({ value: 5000 });
-    updateJackpotUI();
-}
-
-function updateJackpotUI() {
-    jackpot.innerText = `💎 JACKPOT: ${jackpotValue} €`;
-}
-
-async function updateJackpot(amount) {
-    jackpotValue += amount;
-    await jackpotRef.set({ value: jackpotValue });
-    updateJackpotUI();
-}
-
-async function resetJackpot() {
-    jackpotValue = 5000;
-    await jackpotRef.set({ value: jackpotValue });
-    updateJackpotUI();
-}
-
-function randomSym() {
-    return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-}
-
-async function spin() {
-    if (data.balance < data.bet) return;
-
-    data.balance -= data.bet;
-    await updateJackpot(data.bet);
-
-    const s1=randomSym(), s2=randomSym(), s3=randomSym();
-    r1.innerText=s1; r2.innerText=s2; r3.innerText=s3;
-
-    if (s1===s2 && s2===s3) {
-        if (s1==="💎") {
-            data.balance += jackpotValue;
-            addWinLog(`💎💎💎 JACKPOT! +${jackpotValue} €`);
-            await resetJackpot();
-        } else {
-            const win = data.bet * PAYTABLE[s1];
-            data.balance += win;
-            addWinLog(`🎉 ${s1}${s2}${s3} → +${win} €`);
-        }
-    } else {
-        addWinLog("❌ Kein Gewinn");
-    }
-
-    savePlayer();
+    const d = await jackpotRef.get();
+    if (d.exists) jackpot = d.data().value;
+    else await jackpotRef.set({ value: jackpot });
     updateUI();
-    loadLeaderboard();
 }
 
-function addWinLog(text) {
-    winLog.unshift(text);
-    winLog = winLog.slice(0, 15);
-    winLogDiv.innerHTML = winLog.join("<br>");
-}
-
-function updateUI() {
-    status.innerText = `👤 ${playerName}`;
-    playerInfo.innerText = `💰 ${data.balance} € | 🎯 Einsatz: ${data.bet} €`;
+async function saveJackpot() {
+    await jackpotRef.set({ value: jackpot });
 }
 
 async function loadPlayer() {
@@ -248,8 +195,71 @@ function savePlayer() {
     db.collection("players").doc(playerName).set(data);
 }
 
-async function loadLeaderboard() {
-    const snap = await db.collection("players").orderBy("balance","desc").limit(10).get();
+setInterval(() => {
+    const now = Date.now();
+    if (now - data.lastIncome >= INTERVAL) {
+        data.balance += INCOME_PER_MIN;
+        data.lastIncome += INTERVAL;
+        savePlayer();
+    }
+    timer.innerText = `⏳ Einkommen in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
+}, 1000);
+
+function randomSym() {
+    return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+}
+
+async function spin() {
+    if (data.balance < data.bet) return;
+
+    data.balance -= data.bet;
+    jackpot += data.bet;
+    await saveJackpot();
+
+    const s1=randomSym(), s2=randomSym(), s3=randomSym();
+    r1.innerText=s1; r2.innerText=s2; r3.innerText=s3;
+
+    if (s1===s2 && s2===s3) {
+        if (s1==="💎") {
+            data.balance += jackpot;
+            addWinLog(`💎💎💎 JACKPOT! +${jackpot} €`);
+            jackpot = 5000;
+            await saveJackpot();
+        } else {
+            const win=data.bet*PAYTABLE[s1];
+            data.balance+=win;
+            addWinLog(`🎉 ${s1}${s2}${s3} → +${win} €`);
+        }
+    } else {
+        addWinLog(`❌ Kein Gewinn`);
+    }
+
+    savePlayer();
+    updateUI();
+    loadLeaderboard();
+}
+
+function addWinLog(text) {
+    winLog.unshift(text);
+    winLog = winLog.slice(0,15);
+    document.getElementById("winLog").innerHTML = winLog.join("<br>");
+}
+
+function updateUI() {
+    status.innerText = `👤 ${playerName}`;
+    jackpot.innerText = `💎 JACKPOT: ${jackpot} €`;
+    playerInfo.innerText = `💰 ${data.balance} € | 🎯 Einsatz: ${data.bet} €`;
+}
+
+function setBet() {
+    const v=parseInt(prompt("Einsatz:",data.bet));
+    if(v>0 && v<=data.balance) data.bet=v;
+    updateUI();
+}
+function allIn(){ data.bet=data.balance; updateUI(); }
+
+async function loadLeaderboard(){
+    const snap=await db.collection("players").orderBy("balance","desc").limit(10).get();
     leaderboardList.innerHTML="";
     let i=1;
     snap.forEach(d=>{
@@ -258,26 +268,11 @@ async function loadLeaderboard() {
     });
 }
 
-setInterval(() => {
-    const now = Date.now();
-    if (now - data.lastIncome >= INTERVAL) {
-        data.balance += INCOME_PER_MIN;
-        data.lastIncome += INTERVAL;
-        savePlayer();
-        updateUI();
-    }
-    timer.innerText = `⏳ Einkommen in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
-}, 1000);
-
-function setBet() {
-    const v=parseInt(prompt("Einsatz:",data.bet));
-    if(v>0&&v<=data.balance){data.bet=v;updateUI();}
-}
-function allIn(){data.bet=data.balance;updateUI();}
-
-loadPlayer();
-loadLeaderboard();
-loadJackpot();
+(async function init(){
+    await loadJackpot();
+    await loadPlayer();
+    loadLeaderboard();
+})();
 </script>
 
 </body>
