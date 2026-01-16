@@ -395,3 +395,177 @@ loadLeaderboard();
 
 </body>
 </html>
+
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBqJub5JZstuXNlemSLc9HFziEs11gA70k",
+  authDomain: "slot-site-dce13.firebaseapp.com",
+  projectId: "slot-site-dce13"
+});
+
+const db = firebase.firestore();
+const jackpotRef = db.collection("game").doc("jackpot");
+
+const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
+const PAYTABLE = { "🍒":2,"🍋":3,"🍊":5,"🔔":8,"⭐":10,"7️⃣":20 };
+
+const INCOME_PER_MIN = 5;
+const INTERVAL = 60000;
+
+const winLogEl = document.getElementById("winLog");
+
+let playerName = localStorage.getItem("player_name") || prompt("Spielername:");
+localStorage.setItem("player_name", playerName);
+
+let data = { balance: 5000, bet: 10, lastIncome: Date.now() };
+let jackpotValue = 5000;
+let winLog = [];
+let spinning = false;
+
+/* ===== JACKPOT LIVE ===== */
+jackpotRef.onSnapshot(doc=>{
+    if(doc.exists){
+        jackpotValue = doc.data().value;
+        updateUI();
+    }
+});
+
+/* ===== SPIELER ===== */
+async function loadPlayer(){
+    const ref = db.collection("players").doc(playerName);
+    const doc = await ref.get();
+    if(doc.exists) data = doc.data();
+    else await ref.set(data);
+    updateUI();
+}
+
+function savePlayer(){
+    db.collection("players").doc(playerName).set(data);
+}
+
+/* ===== FIXED INCOME SYSTEM ===== */
+function processIncome(){
+    const now = Date.now();
+    const diff = now - data.lastIncome;
+
+    if(diff >= INTERVAL){
+        const minutes = Math.floor(diff / INTERVAL);
+        const income = minutes * INCOME_PER_MIN;
+
+        data.balance += income;
+        data.lastIncome += minutes * INTERVAL;
+
+        savePlayer();
+        updateUI();
+        addWinLog(`⏱️ Einkommen +${income}€`, "win");
+    }
+
+    const remain = INTERVAL - (now - data.lastIncome);
+    timer.innerText = `⏳ +5€ in ${Math.max(1, Math.ceil(remain/1000))}s`;
+}
+
+setInterval(processIncome, 1000);
+
+/* ===== SLOT ===== */
+function randomSym(){
+    return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+}
+
+async function spin(){
+    if(spinning || data.balance < data.bet) return;
+    spinning = true;
+
+    data.balance -= data.bet;
+    jackpotValue += data.bet;
+    await jackpotRef.set({ value: jackpotValue });
+
+    const f1=randomSym(), f2=randomSym(), f3=randomSym();
+
+    animateReel(r1,f1,700);
+    animateReel(r2,f2,900);
+    animateReel(r3,f3,1100);
+
+    setTimeout(async()=>{
+        if(f1===f2 && f2===f3){
+            if(f1==="💎"){
+                data.balance += jackpotValue;
+                addWinLog(`💎 JACKPOT +${jackpotValue}€`, "jackpot");
+                jackpotValue = 5000;
+                await jackpotRef.set({ value: jackpotValue });
+            } else {
+                const win = data.bet * PAYTABLE[f1];
+                data.balance += win;
+                addWinLog(`🎉 ${f1}${f2}${f3} +${win}€`, "win");
+            }
+        } else {
+            addWinLog("❌ Kein Gewinn", "lose");
+        }
+
+        savePlayer();
+        updateUI();
+        loadLeaderboard();
+        spinning=false;
+    },1200);
+}
+
+function animateReel(r,f,d){
+    const s=Date.now();
+    const i=setInterval(()=>{
+        r.innerText=randomSym();
+        if(Date.now()-s>=d){
+            clearInterval(i);
+            r.innerText=f;
+        }
+    },70);
+}
+
+function addWinLog(text,type){
+    let cls="log-entry ";
+    if(type==="win") cls+="log-win";
+    else if(type==="lose") cls+="log-lose";
+    else cls+="log-jackpot";
+
+    winLog.unshift(`<div class="${cls}">${text}</div>`);
+    winLog=winLog.slice(0,10);
+    winLogEl.innerHTML=winLog.join("");
+}
+
+function updateUI(){
+    status.innerText=`👤 ${playerName}`;
+    jackpot.innerText=`💎 JACKPOT: ${jackpotValue} €`;
+    playerInfo.innerText=`💰 ${data.balance} € | 🎯 Einsatz ${data.bet} €`;
+}
+
+function setBet(){
+    const v=parseInt(prompt("Einsatz:",data.bet));
+    if(v>0 && v<=data.balance) data.bet=v;
+    updateUI();
+}
+
+function allIn(){
+    data.bet=data.balance;
+    updateUI();
+}
+
+/* ===== LEADERBOARD ===== */
+async function loadLeaderboard(){
+    const snap=await db.collection("players")
+        .orderBy("balance","desc")
+        .limit(10).get();
+    leaderboardList.innerHTML="";
+    let i=1;
+    snap.forEach(d=>{
+        leaderboardList.innerHTML+=
+        `<div><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
+        i++;
+    });
+}
+
+loadPlayer();
+loadLeaderboard();
+</script>
+
+</body>
+</html>
+
