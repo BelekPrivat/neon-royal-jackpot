@@ -33,7 +33,14 @@ html, body {
 h1 { color: gold; font-size: 3rem; }
 
 .status { color: cyan; font-size: 1.2rem; }
-.jackpot { color: gold; font-size: 1.5rem; }
+
+.jackpot {
+    color: gold;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0 5px 0;
+    text-shadow: 0 0 10px gold;
+}
 
 .reels {
     display: flex;
@@ -102,8 +109,12 @@ h1 { color: gold; font-size: 3rem; }
 
 <div id="app">
     <h1>🎰 Belek´s Slot-Maschine 🎰</h1>
+
     <div class="status" id="status"></div>
-    <div class="jackpot" id="jackpot"></div>
+
+    <!-- ✅ JACKPOT ÜBER TIMER -->
+    <div class="jackpot" id="jackpot">💎 JACKPOT: 5000 €</div>
+
     <div class="status" id="timer"></div>
 
     <div class="reels">
