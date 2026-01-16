@@ -67,20 +67,45 @@ h1 { color: gold; font-size: 3rem; }
     color: cyan;
 }
 
-/* LEADERBOARD RECHTS */
-#leaderboard {
+/* RECHTS */
+#rightPanel {
     width: 45%;
     background: black;
     border-left: 4px solid gold;
-    padding: 30px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* LEADERBOARD */
+#leaderboard {
     font-size: 1.3rem;
-    overflow-y: auto;
+    margin-bottom: 20px;
 }
 
 #leaderboard h3 {
     margin-top: 0;
     color: gold;
     text-align: center;
+}
+
+/* GEWINN LOG */
+#log {
+    border-top: 2px solid gold;
+    padding-top: 15px;
+    font-size: 1.1rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+#log h3 {
+    margin-top: 0;
+    color: cyan;
+    text-align: center;
+}
+
+.log-entry {
+    margin-bottom: 6px;
 }
 </style>
 </head>
@@ -110,9 +135,16 @@ h1 { color: gold; font-size: 3rem; }
     <div id="playerInfo" class="player-info"></div>
 </div>
 
-<div id="leaderboard">
-    <h3>🏆 Global Leaderboard</h3>
-    <div id="leaderboardList"></div>
+<div id="rightPanel">
+    <div id="leaderboard">
+        <h3>🏆 Global Leaderboard</h3>
+        <div id="leaderboardList"></div>
+    </div>
+
+    <div id="log">
+        <h3>📜 Gewinn-Log</h3>
+        <div id="logList"></div>
+    </div>
 </div>
 
 </div>
@@ -128,7 +160,6 @@ const db = firebase.firestore();
 
 /* ───── VARS ───── */
 const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
-
 const PAYTABLE = {
     "🍒": 2,
     "🍋": 3,
@@ -144,6 +175,7 @@ const INCOME_PER_MIN = 5;
 const INTERVAL = 60000;
 
 let playerName = null;
+let logEntries = [];
 
 let data = {
     balance: 5000,
@@ -158,11 +190,7 @@ async function askForName() {
         let name = prompt("Spielername (max. 10 Zeichen):");
         if (!name) continue;
         name = name.trim();
-
-        if (name.length < 1 || name.length > 10) {
-            alert("1–10 Zeichen erlaubt!");
-            continue;
-        }
+        if (name.length < 1 || name.length > 10) continue;
 
         const doc = await db.collection("players").doc(name).get();
         if (doc.exists) {
@@ -180,11 +208,9 @@ async function loadPlayer() {
     const ref = db.collection("players").doc(playerName);
     const doc = await ref.get();
 
-    if (doc.exists) {
-        data = doc.data();
-    } else {
-        await ref.set(data);
-    }
+    if (doc.exists) data = doc.data();
+    else await ref.set(data);
+
     updateUI();
 }
 
@@ -205,13 +231,23 @@ setInterval(() => {
         updateUI();
     }
 
-    const remain = Math.max(0, INTERVAL - (now - data.lastIncome));
-    timer.innerText = `⏳ Einkommen in ${Math.ceil(remain / 1000)}s`;
+    timer.innerText =
+        `⏳ Einkommen in ${Math.ceil((INTERVAL - (now - data.lastIncome)) / 1000)}s`;
 }, 1000);
 
 /* ───── SLOT ───── */
 function randomSym() {
     return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+}
+
+function addLog(text) {
+    logEntries.unshift(text);
+    logEntries = logEntries.slice(0, 20);
+
+    logList.innerHTML = "";
+    logEntries.forEach(e => {
+        logList.innerHTML += `<div class="log-entry">${e}</div>`;
+    });
 }
 
 function spin() {
@@ -227,29 +263,17 @@ function spin() {
     r2.innerText = s2;
     r3.innerText = s3;
 
-    // 🎯 KLASSISCHE 3-WALZEN-LOGIK
     if (s1 === s2 && s2 === s3) {
-        const multiplier = PAYTABLE[s1] || 0;
-        const win = data.bet * multiplier;
+        const win = data.bet * PAYTABLE[s1];
         data.balance += win;
+        addLog(`${s1}${s2}${s3} → +${win} €`);
+    } else {
+        addLog(`❌ Kein Gewinn`);
     }
 
     savePlayer();
     updateUI();
     loadLeaderboard();
-}
-
-function setBet() {
-    const v = parseInt(prompt("Einsatz:", data.bet));
-    if (!isNaN(v) && v >= MIN_BET && v <= data.balance) {
-        data.bet = v;
-        updateUI();
-    }
-}
-
-function allIn() {
-    data.bet = data.balance;
-    updateUI();
 }
 
 /* ───── UI ───── */
@@ -285,5 +309,3 @@ async function loadLeaderboard() {
 
 </body>
 </html>
-
-
