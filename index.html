@@ -18,6 +18,7 @@ html, body {
 }
 #layout { display: flex; height: 100vh; }
 
+/* ===== LINKER SPIELBEREICH ===== */
 #app {
     width: 55%;
     display: flex;
@@ -26,121 +27,121 @@ html, body {
     justify-content: center;
 }
 
-h1 { color: gold; font-size: 3rem; }
+h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
 
-.status { color: cyan; font-size: 1.2rem; }
+.status { color: cyan; font-size: 1.1rem; }
 
 .jackpot {
     color: gold;
-    font-size: 2rem;
+    font-size: 1.9rem;
     font-weight: bold;
     text-shadow: 0 0 10px gold;
 }
 
 .reels {
     display: flex;
-    gap: 30px;
-    margin: 20px 0;
+    gap: 25px;
+    margin: 15px 0;
 }
 
 .reel {
-    font-size: 5rem;
+    font-size: 4.5rem;
     background: black;
-    padding: 20px;
+    padding: 18px;
     border: 5px ridge gold;
-    width: 100px;
+    width: 95px;
     text-align: center;
 }
 
 .controls button {
-    font-size: 1.1rem;
-    padding: 12px 18px;
-    margin: 5px;
+    font-size: 1.05rem;
+    padding: 10px 16px;
+    margin: 4px;
 }
 
 .spin { background: green; color: white; }
 .allin { background: red; color: white; }
 
 .player-info {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     color: cyan;
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
+/* ===== RECHTE SEITE ===== */
 #right {
     width: 45%;
     background: black;
     border-left: 4px solid gold;
-    padding: 20px;
-    overflow-y: auto;
+    padding: 15px;
+    overflow: hidden;
 }
 
-.section { margin-bottom: 25px; }
-.section h3 { color: gold; text-align: center; }
+.section { margin-bottom: 15px; }
+.section h3 {
+    color: gold;
+    text-align: center;
+    margin: 6px 0;
+}
 
-/* 🎰 LEADERBOARD */
+/* ===== LEADERBOARD ===== */
 #leaderboardList {
     background: linear-gradient(180deg, #111, #000);
     border: 2px solid gold;
     border-radius: 12px;
-    padding: 12px;
-    font-size: 1.1rem;
+    padding: 10px;
+    font-size: 1.05rem;
 }
 
 #leaderboardList div {
     display: flex;
     justify-content: space-between;
-    padding: 6px 8px;
+    padding: 5px 6px;
     border-bottom: 1px solid #333;
 }
-
-#leaderboardList div:last-child {
-    border-bottom: none;
-}
+#leaderboardList div:last-child { border-bottom: none; }
 
 #leaderboardList div:nth-child(1) {
     color: gold;
     font-weight: bold;
-    text-shadow: 0 0 8px gold;
 }
 #leaderboardList div:nth-child(2) { color: silver; }
 #leaderboardList div:nth-child(3) { color: #cd7f32; }
 
+/* ===== GEWINN LOG ===== */
 #winLog {
-    min-height: 320px;
+    height: 150px;
     border: 1px solid gold;
-    padding: 10px;
+    padding: 8px;
     background: #111;
+    font-size: 0.95rem;
+    overflow-y: hidden;
 }
 
-/* 📊 PAYTABLE */
+/* ===== PAYTABLE (KOMPAKT) ===== */
 #paytable {
     background: radial-gradient(circle at top, #222, #000);
     border: 2px solid gold;
-    border-radius: 15px;
-    padding: 15px;
+    border-radius: 12px;
+    padding: 8px;
 }
 
 #paytable table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 1.15rem;
+    font-size: 0.95rem;
 }
 
 #paytable th {
     color: gold;
-    padding: 10px;
-    border-bottom: 2px solid gold;
+    padding: 4px;
+    border-bottom: 1px solid gold;
 }
 
 #paytable td {
-    padding: 8px;
+    padding: 4px;
     text-align: center;
     border-bottom: 1px solid #333;
-}
-
-#paytable tr:hover {
-    background: rgba(255,215,0,0.08);
 }
 
 #paytable tr:last-child td {
@@ -154,8 +155,9 @@ h1 { color: gold; font-size: 3rem; }
 
 <div id="layout">
 
+<!-- ===== SPIEL ===== -->
 <div id="app">
-    <h1>🎰 Belek´s Slot-Maschine 🎰</h1>
+    <h1>🎰 Belek´s Slot-Maschine</h1>
 
     <div id="status" class="status"></div>
     <div id="jackpot" class="jackpot">💎 JACKPOT: 5000 €</div>
@@ -176,30 +178,32 @@ h1 { color: gold; font-size: 3rem; }
     <div id="playerInfo" class="player-info"></div>
 </div>
 
+<!-- ===== RECHTS ===== -->
 <div id="right">
+
     <div class="section">
         <h3>🏆 Leaderboard</h3>
         <div id="leaderboardList"></div>
     </div>
 
     <div class="section">
-        <h3>🧾 Gewinn-Log</h3>
+        <h3>🧾 Gewinne</h3>
         <div id="winLog"></div>
     </div>
 
     <div class="section" id="paytable">
-        <h3>📊 Paytable</h3>
         <table>
-            <tr><th>Kombination</th><th>Gewinn</th></tr>
-            <tr><td>🍒🍒🍒</td><td>x2</td></tr>
-            <tr><td>🍋🍋🍋</td><td>x3</td></tr>
-            <tr><td>🍊🍊🍊</td><td>x5</td></tr>
-            <tr><td>🔔🔔🔔</td><td>x8</td></tr>
-            <tr><td>⭐⭐⭐</td><td>x10</td></tr>
-            <tr><td>7️⃣7️⃣7️⃣</td><td>x20</td></tr>
-            <tr><td>💎💎💎</td><td>JACKPOT</td></tr>
+            <tr><th>Kombi</th><th>x</th></tr>
+            <tr><td>🍒🍒🍒</td><td>2</td></tr>
+            <tr><td>🍋🍋🍋</td><td>3</td></tr>
+            <tr><td>🍊🍊🍊</td><td>5</td></tr>
+            <tr><td>🔔🔔🔔</td><td>8</td></tr>
+            <tr><td>⭐⭐⭐</td><td>10</td></tr>
+            <tr><td>7️⃣7️⃣7️⃣</td><td>20</td></tr>
+            <tr><td>💎💎💎</td><td>JP</td></tr>
         </table>
     </div>
+
 </div>
 </div>
 
@@ -229,103 +233,98 @@ let jackpotValue = 5000;
 let winLog = [];
 let spinning = false;
 
-/* 🔴 LIVE JACKPOT */
-jackpotRef.onSnapshot(doc => {
-    if (doc.exists) {
+jackpotRef.onSnapshot(doc=>{
+    if(doc.exists){
         jackpotValue = doc.data().value;
         updateUI();
     }
 });
 
-async function loadPlayer() {
+async function loadPlayer(){
     const ref = db.collection("players").doc(playerName);
     const doc = await ref.get();
-    if (doc.exists) data = doc.data();
+    if(doc.exists) data = doc.data();
     else await ref.set(data);
     updateUI();
 }
 
-function savePlayer() {
+function savePlayer(){
     db.collection("players").doc(playerName).set(data);
 }
 
-setInterval(() => {
+setInterval(()=>{
     const now = Date.now();
-    if (now - data.lastIncome >= INTERVAL) {
+    if(now - data.lastIncome >= INTERVAL){
         data.balance += INCOME_PER_MIN;
         data.lastIncome += INTERVAL;
         savePlayer();
     }
-    timer.innerText =
-        `⏳ Einkommen in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
-}, 1000);
+    timer.innerText = `⏳ +5€ in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
+},1000);
 
-function randomSym() {
+function randomSym(){
     return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
 }
 
-async function spin() {
-    if (spinning || data.balance < data.bet) return;
+async function spin(){
+    if(spinning || data.balance < data.bet) return;
     spinning = true;
 
     data.balance -= data.bet;
     jackpotValue += data.bet;
     await jackpotRef.set({ value: jackpotValue });
 
-    const f1 = randomSym(), f2 = randomSym(), f3 = randomSym();
+    const f1=randomSym(), f2=randomSym(), f3=randomSym();
+    animateReel(r1,f1,700);
+    animateReel(r2,f2,900);
+    animateReel(r3,f3,1100);
 
-    animateReel(r1,f1,800);
-    animateReel(r2,f2,1100);
-    animateReel(r3,f3,1400);
-
-    setTimeout(async ()=>{
-        if (f1===f2 && f2===f3) {
-            if (f1==="💎") {
+    setTimeout(async()=>{
+        if(f1===f2 && f2===f3){
+            if(f1==="💎"){
                 data.balance += jackpotValue;
-                addWinLog(`💎 JACKPOT! +${jackpotValue} €`);
+                addWinLog(`💎 JACKPOT +${jackpotValue}€`);
                 jackpotValue = 5000;
                 await jackpotRef.set({ value: jackpotValue });
             } else {
                 const win = data.bet * PAYTABLE[f1];
                 data.balance += win;
-                addWinLog(`🎉 ${f1}${f2}${f3} → +${win} €`);
+                addWinLog(`🎉 ${f1}${f2}${f3} +${win}€`);
             }
-        } else {
-            addWinLog("❌ Kein Gewinn");
-        }
+        } else addWinLog("❌ Kein Gewinn");
 
         savePlayer();
         updateUI();
         loadLeaderboard();
-        spinning = false;
-    },1500);
+        spinning=false;
+    },1200);
 }
 
-function animateReel(reel,finalSymbol,duration){
-    const start = Date.now();
-    const i = setInterval(()=>{
-        reel.innerText = randomSym();
-        if (Date.now()-start>=duration){
+function animateReel(r,f,d){
+    const s=Date.now();
+    const i=setInterval(()=>{
+        r.innerText=randomSym();
+        if(Date.now()-s>=d){
             clearInterval(i);
-            reel.innerText = finalSymbol;
+            r.innerText=f;
         }
-    },80);
+    },70);
 }
 
-function addWinLog(text){
-    winLog.unshift(text);
-    winLog = winLog.slice(0,15);
-    winLogEl.innerHTML = winLog.join("<br>");
+function addWinLog(t){
+    winLog.unshift(t);
+    winLog=winLog.slice(0,10);
+    winLogEl.innerHTML=winLog.join("<br>");
 }
 
 function updateUI(){
-    status.innerText = `👤 ${playerName}`;
-    jackpot.innerText = `💎 JACKPOT: ${jackpotValue} €`;
-    playerInfo.innerText = `💰 ${data.balance} € | 🎯 Einsatz: ${data.bet} €`;
+    status.innerText=`👤 ${playerName}`;
+    jackpot.innerText=`💎 JACKPOT: ${jackpotValue} €`;
+    playerInfo.innerText=`💰 ${data.balance} € | 🎯 Einsatz ${data.bet} €`;
 }
 
 function setBet(){
-    const v = parseInt(prompt("Einsatz:",data.bet));
+    const v=parseInt(prompt("Einsatz:",data.bet));
     if(v>0 && v<=data.balance) data.bet=v;
     updateUI();
 }
@@ -336,19 +335,14 @@ function allIn(){
 }
 
 async function loadLeaderboard(){
-    const snap = await db.collection("players")
+    const snap=await db.collection("players")
         .orderBy("balance","desc")
-        .limit(10)
-        .get();
-
+        .limit(10).get();
     leaderboardList.innerHTML="";
     let i=1;
     snap.forEach(d=>{
-        leaderboardList.innerHTML += `
-            <div>
-                <span>${i}. ${d.id}</span>
-                <span>${d.data().balance} €</span>
-            </div>`;
+        leaderboardList.innerHTML+=`
+        <div><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
         i++;
     });
 }
