@@ -17,10 +17,7 @@ html, body {
     height: 100%;
 }
 
-#layout {
-    display: flex;
-    height: 100vh;
-}
+#layout { display: flex; height: 100vh; }
 
 /* ===== SPIEL ===== */
 #app {
@@ -41,11 +38,7 @@ h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
     text-shadow: 0 0 10px gold;
 }
 
-.reels {
-    display: flex;
-    gap: 25px;
-    margin: 15px 0;
-}
+.reels { display: flex; gap: 25px; margin: 15px 0; }
 
 .reel {
     font-size: 4.5rem;
@@ -82,7 +75,7 @@ h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
     gap: 12px;
 }
 
-/* ===== GEMEINSAMER PANEL STYLE ===== */
+/* ===== PANEL ===== */
 .panel {
     background: linear-gradient(180deg, #111, #000);
     border: 2px solid gold;
@@ -102,15 +95,38 @@ h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
 #leaderboardList div {
     display: flex;
     justify-content: space-between;
-    padding: 4px 6px;
+    padding: 6px 8px;
     border-bottom: 1px solid #333;
+    transition: all .25s ease;
+    animation: fadeIn .4s ease;
+}
+
+#leaderboardList div:hover {
+    background: rgba(255,215,0,0.08);
+    box-shadow: inset 0 0 10px rgba(255,215,0,.4);
+}
+
+/* TOP 3 */
+.lb-1 { color: gold; text-shadow: 0 0 8px gold; }
+.lb-2 { color: silver; }
+.lb-3 { color: #cd7f32; }
+
+/* eigener Spieler */
+.lb-self {
+    background: rgba(0,255,255,0.08);
+    border-left: 3px solid cyan;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ===== GEWINN LOG ===== */
 #winLog {
     flex-grow: 2;
-    overflow-y: auto;
     min-height: 320px;
+    overflow-y: auto;
 }
 
 .log-entry { padding: 4px; font-weight: bold; }
@@ -123,10 +139,7 @@ h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
     border-bottom: 1px solid rgba(255,215,0,0.25);
 }
 
-#paytable {
-    flex-grow: 1.3;
-    
-}
+#paytable { flex-grow: 1.3; }
 
 #paytable table {
     width: 100%;
@@ -225,7 +238,7 @@ let jackpotValue = 5000;
 let winLog = [];
 let spinning = false;
 
-/* LIVE JACKPOT */
+/* JACKPOT LIVE */
 jackpotRef.onSnapshot(d=>{
     if(d.exists){ jackpotValue=d.data().value; updateUI(); }
 });
@@ -321,8 +334,10 @@ async function loadLeaderboard(){
     leaderboardList.innerHTML="";
     let i=1;
     s.forEach(d=>{
+        let cls = i===1?"lb-1":i===2?"lb-2":i===3?"lb-3":"";
+        if(d.id===playerName) cls+=" lb-self";
         leaderboardList.innerHTML+=
-        `<div><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
+        `<div class="${cls}"><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
         i++;
     });
 }
@@ -333,5 +348,3 @@ loadLeaderboard();
 
 </body>
 </html>
-
-
