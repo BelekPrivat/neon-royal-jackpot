@@ -65,24 +65,26 @@ h1{color:gold;font-size:2.6rem}
 <div id="layout">
 
 <div id="app">
-<h1>🎰 Belek´s Slot-Maschine</h1>
-<div id="status" class="status"></div>
-<div id="jackpot" class="jackpot"></div>
-<div id="timer" class="status"></div>
+ <div id="gameCard">
+  <h1>🎰 Belek´s Slot-Maschine 🎰</h1>
+  <div id="status" class="status"></div>
+  <div id="jackpot" class="jackpot"></div>
+  <div id="timer" class="status"></div>
 
-<div class="reels">
-<div class="reel" id="r1">❔</div>
-<div class="reel" id="r2">❔</div>
-<div class="reel" id="r3">❔</div>
-</div>
+  <div class="reels">
+   <div class="reel" id="r1">❔</div>
+   <div class="reel" id="r2">❔</div>
+   <div class="reel" id="r3">❔</div>
+  </div>
 
-<div class="controls">
-<button onclick="setBet()">🎯 Einsatz</button>
-<button class="allin" onclick="allIn()">💥 ALL IN</button>
-<button class="spin" onclick="spin()">▶ SPIN</button>
-</div>
+  <div class="controls">
+   <button onclick="setBet()">🎯 Einsatz</button>
+   <button class="allin" onclick="allIn()">💥 ALL IN</button>
+   <button class="spin" onclick="spin()">▶ SPIN</button>
+  </div>
 
-<div id="playerInfo" class="player-info"></div>
+  <div id="playerInfo" class="player-info"></div>
+ </div>
 </div>
 
 <div id="right">
@@ -252,3 +254,4 @@ loadPlayer();
 </script>
 </body>
 </html>
+
