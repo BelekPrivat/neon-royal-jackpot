@@ -225,7 +225,7 @@ const jackpotRef = db.collection("game").doc("jackpot");
 const SYMBOLS = ["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
 const PAYTABLE = { "🍒":5,"🍋":7,"🍊":10,"🔔":15,"⭐":25,"7️⃣":50 };
 
-const INCOME_PER_MIN = 5;
+const INCOME_PER_MIN = 50;
 const INTERVAL = 60000;
 
 const winLogEl = document.getElementById("winLog");
@@ -264,7 +264,7 @@ setInterval(()=>{
         db.collection("players").doc(playerName).set(data);
         updateUI();
     }
-    timer.innerText=`⏳ +5€ in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
+    timer.innerText=`⏳ +50€ in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
 },1000);
 
 function randomSym(){ return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]; }
@@ -324,7 +324,7 @@ function updateUI(){
 
 function setBet(){
     const v=parseInt(prompt("Einsatz:",data.bet));
-    if(v>0&&v<=data.balance) data.bet=v;
+    if(v>100&&v<=data.balance) data.bet=v;
     updateUI();
 }
 function allIn(){ data.bet=data.balance; updateUI(); }
@@ -348,4 +348,5 @@ loadLeaderboard();
 
 </body>
 </html>
+
 
