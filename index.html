@@ -285,7 +285,10 @@ async function spin(){
  jackpotValue+=data.bet;
  await jackpotRef.set({value:jackpotValue});
  const f1=randomSym(),f2=randomSym(),f3=randomSym();
- setTimeout(async()=>{
+animate(r1, f1, 600);
+animate(r2, f2, 800);
+animate(r3, f3, 1000);
+setTimeout(async()=>{
   if(f1===f2&&f2===f3){
    if(f1==="💎"){
     data.balance+=jackpotValue; jackpotValue=5000;
@@ -300,6 +303,18 @@ async function spin(){
   updateUI(); spinning=false;
  },1100);
 }
+    
+function animate(reel, finalSymbol, duration){
+ const start = Date.now();
+ const interval = setInterval(()=>{
+  reel.innerText = randomSym();
+  if(Date.now() - start >= duration){
+   clearInterval(interval);
+   reel.innerText = finalSymbol;
+  }
+ },70);
+}
+
 function log(t,type){
  winLog.unshift(`<div class="log-entry ${type=='win'?'log-win':type=='lose'?'log-lose':'log-jackpot'}">${t}</div>`);
  winLog=winLog.slice(0,12);
@@ -322,5 +337,6 @@ loadPlayer();
 </script>
 </body>
 </html>
+
 
 
