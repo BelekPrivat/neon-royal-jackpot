@@ -8,171 +8,108 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    background: #111;
-    color: white;
-    font-family: Arial;
-    height: 100%;
+html,body{
+    margin:0;
+    padding:0;
+    height:100%;
+    background:#111;
+    color:white;
+    font-family:Arial;
 }
+#layout{display:flex;height:100vh}
 
-#layout { display: flex; height: 100vh; }
-
-/* ===== SPIEL ===== */
-#app {
-    width: 55%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* SPIEL */
+#app{
+    width:55%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
 }
-
-h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
-.status { color: cyan; font-size: 1.1rem; }
-
-.jackpot {
-    color: gold;
-    font-size: 1.9rem;
-    font-weight: bold;
-    text-shadow: 0 0 10px gold;
+h1{color:gold;font-size:2.6rem}
+.status{color:cyan}
+.jackpot{color:gold;font-size:1.9rem;text-shadow:0 0 10px gold}
+.reels{display:flex;gap:25px;margin:15px}
+.reel{
+    width:95px;
+    font-size:4.5rem;
+    background:#000;
+    padding:18px;
+    border:5px ridge gold;
+    text-align:center;
 }
+.controls button{padding:10px 16px;margin:4px;font-size:1.05rem}
+.spin{background:green;color:white}
+.allin{background:red;color:white}
+.player-info{font-size:1.25rem;color:cyan;margin-top:8px}
 
-.reels { display: flex; gap: 25px; margin: 15px 0; }
-
-.reel {
-    font-size: 4.5rem;
-    background: black;
-    padding: 18px;
-    border: 5px ridge gold;
-    width: 95px;
-    text-align: center;
+/* RECHTS */
+#right{
+    width:45%;
+    background:black;
+    border-left:4px solid gold;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
 }
-
-.controls button {
-    font-size: 1.05rem;
-    padding: 10px 16px;
-    margin: 4px;
+.panel{
+    background:linear-gradient(180deg,#111,#000);
+    border:2px solid gold;
+    border-radius:12px;
+    padding:10px;
 }
+.panel h3{text-align:center;color:gold}
 
-.spin { background: green; color: white; }
-.allin { background: red; color: white; }
-
-.player-info {
-    font-size: 1.25rem;
-    color: cyan;
-    margin-top: 8px;
+/* LEADERBOARD */
+#leaderboardList div{
+    display:flex;
+    justify-content:space-between;
+    padding:6px;
+    border-bottom:1px solid #333;
 }
+.lb-1{color:gold}
+.lb-2{color:silver}
+.lb-3{color:#cd7f32}
+.lb-self{border-left:3px solid cyan}
 
-/* ===== RECHTS ===== */
-#right {
-    width: 45%;
-    background: black;
-    border-left: 4px solid gold;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* LOG */
+#winLog{min-height:320px;overflow-y:auto}
+.log-entry{font-weight:bold}
+.log-win{color:#00ff7f}
+.log-lose{color:#ff4c4c}
+.log-jackpot{color:gold}
+
+/* PAYTABLE */
+#paytable table{width:100%;border-collapse:collapse}
+#paytable th,#paytable td{text-align:center;padding:6px}
+#paytable th{color:gold;border-bottom:1px solid gold}
+#paytable tr:not(:last-child) td{border-bottom:1px solid rgba(255,215,0,.25)}
+
+/* MOD */
+#modBtn{
+    position:fixed;
+    bottom:10px;
+    right:10px;
+    background:darkred;
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
 }
-
-/* ===== PANEL ===== */
-.panel {
-    background: linear-gradient(180deg, #111, #000);
-    border: 2px solid gold;
-    border-radius: 12px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
+#modMenu{
+    display:none;
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:black;
+    border:3px solid red;
+    padding:16px;
+    border-radius:12px;
+    width:300px;
 }
-
-.panel h3 {
-    text-align: center;
-    color: gold;
-    margin: 4px 0 8px;
-}
-
-/* ===== LEADERBOARD ===== */
-#leaderboardList div {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 8px;
-    border-bottom: 1px solid #333;
-}
-
-.lb-1 { color: gold; text-shadow: 0 0 8px gold; }
-.lb-2 { color: silver; }
-.lb-3 { color: #cd7f32; }
-.lb-self { border-left: 3px solid cyan; }
-
-/* ===== GEWINN LOG ===== */
-#winLog {
-    flex-grow: 2;
-    min-height: 320px;
-    overflow-y: auto;
-}
-
-.log-entry { padding: 4px; font-weight: bold; }
-.log-win { color: #00ff7f; }
-.log-lose { color: #ff4c4c; }
-.log-jackpot { color: gold; }
-
-/* ===== PAYTABLE ===== */
-#paytable tr:not(:last-child) td {
-    border-bottom: 1px solid rgba(255,215,0,0.25);
-}
-
-#paytable table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#paytable th, #paytable td {
-    padding: 6px;
-    text-align: center;
-}
-
-#paytable th {
-    color: gold;
-    border-bottom: 1px solid gold;
-}
-
-/* ===== MOD MENU ===== */
-#modBtn {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: darkred;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    z-index: 1000;
-}
-
-#modMenu {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    background: #000;
-    border: 3px solid red;
-    padding: 16px;
-    border-radius: 12px;
-    z-index: 2000;
-    width: 320px;
-}
-
-#modMenu h3 {
-    text-align: center;
-    color: red;
-}
-
-#modMenu button, #modMenu input {
-    width: 100%;
-    margin-top: 6px;
-    padding: 6px;
-}
+#modMenu input,#modMenu button{width:100%;margin-top:6px;padding:6px}
+#modMenu h3{text-align:center;color:red}
 </style>
 </head>
 
@@ -181,135 +118,234 @@ h1 { color: gold; font-size: 2.6rem; margin-bottom: 5px; }
 <div id="layout">
 
 <div id="app">
-    <h1>🎰 Belek´s Slot-Maschine</h1>
-    <div id="status" class="status"></div>
-    <div id="jackpot" class="jackpot"></div>
-    <div id="timer" class="status"></div>
+<h1>🎰 Belek´s Slot-Maschine</h1>
+<div id="status" class="status"></div>
+<div id="jackpot" class="jackpot"></div>
+<div id="timer" class="status"></div>
 
-    <div class="reels">
-        <div class="reel" id="r1">❔</div>
-        <div class="reel" id="r2">❔</div>
-        <div class="reel" id="r3">❔</div>
-    </div>
+<div class="reels">
+<div class="reel" id="r1">❔</div>
+<div class="reel" id="r2">❔</div>
+<div class="reel" id="r3">❔</div>
+</div>
 
-    <div class="controls">
-        <button onclick="setBet()">🎯 Einsatz</button>
-        <button class="allin" onclick="allIn()">💥 ALL IN</button>
-        <button class="spin" onclick="spin()">▶ SPIN</button>
-    </div>
+<div class="controls">
+<button onclick="setBet()">🎯 Einsatz</button>
+<button class="allin" onclick="allIn()">💥 ALL IN</button>
+<button class="spin" onclick="spin()">▶ SPIN</button>
+</div>
 
-    <div id="playerInfo" class="player-info"></div>
+<div id="playerInfo" class="player-info"></div>
 </div>
 
 <div id="right">
 
-    <div class="panel">
-        <h3>🏆 Leaderboard</h3>
-        <div id="leaderboardList"></div>
-    </div>
+<div class="panel">
+<h3>🏆 Leaderboard</h3>
+<div id="leaderboardList"></div>
+</div>
 
-    <div class="panel">
-        <h3>🧾 Gewinne</h3>
-        <div id="winLog"></div>
-    </div>
+<div class="panel">
+<h3>🧾 Gewinne</h3>
+<div id="winLog"></div>
+</div>
 
-    <div class="panel" id="paytable">
-        <h3>📊 Paytable</h3>
-        <table>
-            <tr><th>Kombi</th><th>x</th></tr>
-            <tr><td>🍒🍒🍒</td><td>5</td></tr>
-            <tr><td>🍋🍋🍋</td><td>7</td></tr>
-            <tr><td>🍊🍊🍊</td><td>10</td></tr>
-            <tr><td>🔔🔔🔔</td><td>15</td></tr>
-            <tr><td>⭐⭐⭐</td><td>25</td></tr>
-            <tr><td>7️⃣7️⃣7️⃣</td><td>50</td></tr>
-            <tr><td>💎💎💎</td><td>JACKPOT</td></tr>
-        </table>
-    </div>
+<div class="panel" id="paytable">
+<h3>📊 Paytable</h3>
+<table>
+<tr><th>Kombi</th><th>x</th></tr>
+<tr><td>🍒🍒🍒</td><td>5</td></tr>
+<tr><td>🍋🍋🍋</td><td>7</td></tr>
+<tr><td>🍊🍊🍊</td><td>10</td></tr>
+<tr><td>🔔🔔🔔</td><td>15</td></tr>
+<tr><td>⭐⭐⭐</td><td>25</td></tr>
+<tr><td>7️⃣7️⃣7️⃣</td><td>50</td></tr>
+<tr><td>💎💎💎</td><td>JACKPOT</td></tr>
+</table>
+</div>
 
 </div>
 </div>
 
-<!-- MOD MENU -->
 <div id="modBtn" onclick="openMod()">🛠 MOD</div>
 
 <div id="modMenu">
-    <h3>MOD MENU</h3>
-    <input id="modPlayer" placeholder="Spielername">
-    <input id="modAmount" type="number" placeholder="Betrag">
-    <button onclick="giveMoney()">💰 Geld geben</button>
-    <button onclick="takeMoney()">💸 Geld nehmen</button>
-    <button onclick="setJackpot()">💎 Jackpot setzen</button>
-    <button onclick="resetGame()">🔥 ALLES RESET</button>
-    <button onclick="closeMod()">❌ Schließen</button>
+<h3>MOD MENU</h3>
+<input id="modPlayer" placeholder="Spielername">
+<input id="modAmount" type="number" placeholder="Betrag">
+<button onclick="giveMoney()">💰 Geld geben</button>
+<button onclick="takeMoney()">💸 Geld nehmen</button>
+<button onclick="setJackpot()">💎 Jackpot setzen</button>
+<button onclick="resetGame()">🔥 RESET</button>
+<button onclick="closeMod()">❌ Schließen</button>
 </div>
 
 <script>
-/* ================= MOD CONFIG ================= */
-const MOD_PASSWORD = "ADMIN123";
+/* ===== CONFIG ===== */
+const MOD_PASSWORD="ADMIN123";
+const SYMBOLS=["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
+const PAYTABLE={"🍒":5,"🍋":7,"🍊":10,"🔔":15,"⭐":25,"7️⃣":50};
+const INCOME_PER_MIN=50;
+const INTERVAL=60000;
 
-/* ================= FIREBASE ================= */
+/* ===== FIREBASE ===== */
 firebase.initializeApp({
-  apiKey: "AIzaSyBqJub5JZstuXNlemSLc9HFziEs11gA70k",
-  authDomain: "slot-site-dce13.firebaseapp.com",
-  projectId: "slot-site-dce13"
+ apiKey:"AIzaSyBqJub5JZstuXNlemSLc9HFziEs11gA70k",
+ authDomain:"slot-site-dce13.firebaseapp.com",
+ projectId:"slot-site-dce13"
+});
+const db=firebase.firestore();
+const jackpotRef=db.collection("game").doc("jackpot");
+
+/* ===== STATE ===== */
+let playerName=localStorage.getItem("player_name")||prompt("Spielername:");
+localStorage.setItem("player_name",playerName);
+
+let data={balance:5000,bet:50,lastIncome:Date.now()};
+let jackpotValue=5000;
+let spinning=false;
+let winLog=[];
+
+/* ===== JACKPOT LIVE ===== */
+jackpotRef.onSnapshot(d=>{
+ if(d.exists){
+   jackpotValue=d.data().value||5000;
+   updateUI();
+ }
 });
 
-const db = firebase.firestore();
-const jackpotRef = db.collection("game").doc("jackpot");
+/* ===== LOAD PLAYER ===== */
+async function loadPlayer(){
+ const ref=db.collection("players").doc(playerName);
+ const doc=await ref.get();
+ if(doc.exists) data={...data,...doc.data()};
+ await ref.set(data,{merge:true});
+ updateUI();
+}
 
-/* ================= MOD MENU ================= */
+/* ===== TIMER ===== */
+setInterval(()=>{
+ const now=Date.now();
+ if(data.balance<5000){
+   const diff=Math.floor((now-data.lastIncome)/INTERVAL);
+   if(diff>0){
+     const income=diff*INCOME_PER_MIN;
+     data.balance+=income;
+     data.lastIncome+=diff*INTERVAL;
+     log(`⏳ Einkommen +${income}€`,"win");
+     db.collection("players").doc(playerName).set(data,{merge:true});
+   }
+ }
+ timer.innerText=`⏳ +50€ in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`;
+ updateUI();
+},1000);
+
+/* ===== GAME ===== */
+function randomSym(){return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]}
+
+async function spin(){
+ if(spinning||data.balance<data.bet) return;
+ spinning=true;
+ data.balance-=data.bet;
+ jackpotValue+=data.bet;
+ await jackpotRef.set({value:jackpotValue});
+
+ const f1=randomSym(),f2=randomSym(),f3=randomSym();
+ animate(r1,f1,600);animate(r2,f2,800);animate(r3,f3,1000);
+
+ setTimeout(async()=>{
+  if(f1===f2&&f2===f3){
+   if(f1==="💎"){
+     data.balance+=jackpotValue;
+     log(`💎 JACKPOT +${jackpotValue}€`,"jackpot");
+     jackpotValue=5000;
+     await jackpotRef.set({value:jackpotValue});
+   }else{
+     const win=data.bet*PAYTABLE[f1];
+     data.balance+=win;
+     log(`🎉 ${f1}${f2}${f3} +${win}€`,"win");
+   }
+  }else log("❌ Kein Gewinn","lose");
+
+  await db.collection("players").doc(playerName).set(data,{merge:true});
+  loadLeaderboard();
+  updateUI();
+  spinning=false;
+ },1100);
+}
+
+function animate(r,f,d){
+ const s=Date.now();
+ const i=setInterval(()=>{
+  r.innerText=randomSym();
+  if(Date.now()-s>=d){clearInterval(i);r.innerText=f}
+ },70);
+}
+
+/* ===== UI ===== */
+function log(t,type){
+ const c="log-entry "+(type==="win"?"log-win":type==="lose"?"log-lose":"log-jackpot");
+ winLog.unshift(`<div class="${c}">${t}</div>`);
+ winLog=winLog.slice(0,12);
+ winLogEl.innerHTML=winLog.join("");
+}
+function updateUI(){
+ status.innerText=`👤 ${playerName}`;
+ jackpot.innerText=`💎 JACKPOT: ${jackpotValue} €`;
+ playerInfo.innerText=`💰 ${data.balance} € | 🎯 Einsatz ${data.bet} €`;
+}
+function setBet(){
+ const v=parseInt(prompt("Einsatz:",data.bet));
+ if(v>=50&&v<=data.balance) data.bet=v;
+ updateUI();
+}
+function allIn(){data.bet=data.balance;updateUI()}
+
+/* ===== LEADERBOARD ===== */
+async function loadLeaderboard(){
+ const s=await db.collection("players").orderBy("balance","desc").limit(10).get();
+ leaderboardList.innerHTML="";
+ let i=1;
+ s.forEach(d=>{
+  let cls=i===1?"lb-1":i===2?"lb-2":i===3?"lb-3":"";
+  if(d.id===playerName) cls+=" lb-self";
+  leaderboardList.innerHTML+=`<div class="${cls}"><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
+  i++;
+ });
+}
+
+/* ===== MOD ===== */
 function openMod(){
-    const pw = prompt("MOD Passwort:");
-    if(pw === MOD_PASSWORD){
-        document.getElementById("modMenu").style.display="block";
-    } else alert("Falsches Passwort");
+ const pw=prompt("MOD Passwort:");
+ if(pw===MOD_PASSWORD) modMenu.style.display="block";
+ else alert("Falsches Passwort");
 }
-
-function closeMod(){
-    document.getElementById("modMenu").style.display="none";
-}
+function closeMod(){modMenu.style.display="none"}
 
 async function giveMoney(){
-    const p = modPlayer.value;
-    const a = Number(modAmount.value);
-    const ref = db.collection("players").doc(p);
-    const d = await ref.get();
-    if(d.exists){
-        const data = d.data();
-        data.balance += a;
-        await ref.set(data);
-        alert("Fertig");
-    }
+ const r=db.collection("players").doc(modPlayer.value);
+ const d=await r.get();
+ if(d.exists){await r.set({balance:d.data().balance+Number(modAmount.value)},{merge:true})}
 }
-
 async function takeMoney(){
-    const p = modPlayer.value;
-    const a = Number(modAmount.value);
-    const ref = db.collection("players").doc(p);
-    const d = await ref.get();
-    if(d.exists){
-        const data = d.data();
-        data.balance -= a;
-        await ref.set(data);
-        alert("Fertig");
-    }
+ const r=db.collection("players").doc(modPlayer.value);
+ const d=await r.get();
+ if(d.exists){await r.set({balance:d.data().balance-Number(modAmount.value)},{merge:true})}
 }
-
 async function setJackpot(){
-    const v = Number(modAmount.value);
-    await jackpotRef.set({value:v});
-    alert("Jackpot gesetzt");
+ await jackpotRef.set({value:Number(modAmount.value)});
+}
+async function resetGame(){
+ if(!confirm("WIRKLICH RESET?"))return;
+ const s=await db.collection("players").get();
+ s.forEach(d=>d.ref.delete());
+ await jackpotRef.set({value:5000});
+ location.reload();
 }
 
-async function resetGame(){
-    if(!confirm("WIRKLICH ALLES LÖSCHEN?")) return;
-    const snap = await db.collection("players").get();
-    snap.forEach(d=>d.ref.delete());
-    await jackpotRef.set({value:5000});
-    alert("RESET FERTIG");
-    location.reload();
-}
+/* ===== START ===== */
+loadPlayer();
+loadLeaderboard();
 </script>
 
 </body>
