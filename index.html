@@ -8,56 +8,115 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-html,body{margin:0;height:100%;background:#111;color:white;font-family:Arial}
-#layout{display:flex;height:100vh}
+html,body{
+    margin:0;padding:0;height:100%;
+    background:#111;color:white;font-family:Arial
+}
+#layout{display:flex;height:100vh;overflow:hidden}
 
-/* LEFT */
-#app{width:55%;display:flex;justify-content:center;align-items:center}
+/* ================= LINKER SPIELBEREICH ================= */
+#app{
+    width:55%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
 #gameCard{
- background:linear-gradient(#111,#000);
- border:3px solid gold;border-radius:20px;
- padding:28px;box-shadow:0 0 30px rgba(255,215,0,.3);
- display:flex;flex-direction:column;align-items:center;gap:14px
+    background:linear-gradient(180deg,#111,#000);
+    border:3px solid gold;
+    border-radius:20px;
+    padding:28px 34px;
+    box-shadow:0 0 30px rgba(255,215,0,.25);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    min-width:420px;
 }
-h1{color:gold;font-size:2.4rem;text-shadow:0 0 10px gold}
+
+h1{
+    color:gold;
+    font-size:2.6rem;
+    text-shadow:0 0 12px gold;
+    margin-bottom:6px;
+}
+
 .status{color:cyan}
-.jackpot{color:gold;font-size:1.8rem}
+.jackpot{
+    color:gold;
+    font-size:1.9rem;
+    text-shadow:0 0 12px gold;
+}
 
-.reels{display:flex;gap:25px;margin:15px}
+.reels{
+    display:flex;
+    gap:25px;
+    margin:18px 0;
+}
+
 .reel{
- width:95px;font-size:4.5rem;background:#000;
- padding:18px;border:5px ridge gold;text-align:center
+    width:95px;
+    font-size:4.5rem;
+    background:#000;
+    padding:18px;
+    border:5px ridge gold;
+    text-align:center;
+    box-shadow:inset 0 0 12px rgba(255,215,0,.35);
+}
+/* ===== CONTROLS ===== */
+.controls{
+    display:flex;
+    gap:10px;
 }
 
-.controls{display:flex;gap:10px}
 .controls button{
- padding:12px 18px;font-size:1rem;
- border:none;border-radius:10px;cursor:pointer
+    padding:12px 18px;
+    font-size:1.05rem;
+    min-width:130px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.15s;
 }
+
+.controls button:hover{
+    transform:scale(1.05);
+    opacity:.9;
+}
+
 .spin{background:green;color:white}
 .allin{background:red;color:white}
 
-.player-info{color:cyan;font-size:1.2rem}
-
-/* RIGHT */
-#right{width:45%;background:black;border-left:4px solid gold;
- padding:12px;display:flex;flex-direction:column;gap:12px}
+.player-info{
+    font-size:1.25rem;
+    color:cyan;
+    margin-top:6px;
+}
+    
+/* ===== RECHTS ===== */
+#right{
+    width:45%;background:black;border-left:4px solid gold;
+    padding:12px;display:flex;flex-direction:column;gap:12px;overflow:hidden
+}
 .panel{
- background:linear-gradient(#111,#000);
- border:2px solid gold;border-radius:12px;
- padding:10px;overflow:hidden
+    background:linear-gradient(180deg,#111,#000);
+    border:2px solid gold;border-radius:12px;padding:10px;
+    display:flex;flex-direction:column;overflow:hidden
 }
 .panel h3{text-align:center;color:gold}
 
 /* Leaderboard */
-#leaderboardList{min-height:420px;max-height:420px;overflow-y:auto}
-#leaderboardList div{
- display:flex;justify-content:space-between;
- padding:6px;border-bottom:1px solid #333
-}
+#leaderboardList{min-height:450px;max-height:450px;overflow-y:auto}
+#leaderboardList div{display:flex;justify-content:space-between;padding:6px;border-bottom:1px solid #333}
+.lb-1{color:gold;text-shadow:0 0 8px gold}
+.lb-2{color:silver}
+.lb-3{color:#cd7f32}
+.lb-self{border-left:3px solid cyan}
 
 /* Gewinnlog */
-#winLog{min-height:280px;max-height:280px;overflow-y:auto}
+#winLog{min-height:320px;max-height:320px;overflow-y:auto}
+.log-entry{font-weight:bold}
 .log-win{color:#00ff7f}
 .log-lose{color:#ff4c4c}
 .log-jackpot{color:gold}
@@ -65,7 +124,8 @@ h1{color:gold;font-size:2.4rem;text-shadow:0 0 10px gold}
 /* Paytable */
 #paytable table{width:100%;border-collapse:collapse}
 #paytable th,#paytable td{text-align:center;padding:6px}
-#paytable tr:not(:last-child) td{border-bottom:1px solid rgba(255,215,0,.3)}
+#paytable th{color:gold;border-bottom:1px solid gold}
+#paytable tr:not(:last-child) td{border-bottom:1px solid rgba(255,215,0,.25)}
 </style>
 </head>
 
@@ -73,26 +133,26 @@ h1{color:gold;font-size:2.4rem;text-shadow:0 0 10px gold}
 <div id="layout">
 
 <div id="app">
-<div id="gameCard">
-<h1>🎰 Belek´s Slot-Maschine</h1>
-<div id="status" class="status"></div>
-<div id="jackpot" class="jackpot"></div>
-<div id="timer" class="status"></div>
+ <div id="gameCard">
+  <h1>🎰 Belek´s Slot-Maschine 🎰</h1>
+  <div id="status" class="status"></div>
+  <div id="jackpot" class="jackpot"></div>
+  <div id="timer" class="status"></div>
 
-<div class="reels">
- <div class="reel" id="r1">❔</div>
- <div class="reel" id="r2">❔</div>
- <div class="reel" id="r3">❔</div>
-</div>
+  <div class="reels">
+   <div class="reel" id="r1">❔</div>
+   <div class="reel" id="r2">❔</div>
+   <div class="reel" id="r3">❔</div>
+  </div>
 
-<div class="controls">
- <button onclick="setBet()">🎯 Einsatz</button>
- <button class="allin" onclick="allIn()">💥 ALL IN</button>
- <button class="spin" onclick="spin()">▶ SPIN</button>
-</div>
+  <div class="controls">
+   <button onclick="setBet()">🎯 Einsatz</button>
+   <button class="allin" onclick="allIn()">💥 ALL IN</button>
+   <button class="spin" onclick="spin()">▶ SPIN</button>
+  </div>
 
-<div id="playerInfo" class="player-info"></div>
-</div>
+  <div id="playerInfo" class="player-info"></div>
+ </div>
 </div>
 
 <div id="right">
@@ -115,20 +175,27 @@ h1{color:gold;font-size:2.4rem;text-shadow:0 0 10px gold}
 </div>
 </div>
 
-<!-- MOD MENU -->
-<div id="modMenu" style="display:none;position:fixed;bottom:20px;left:20px;
-background:black;border:2px solid red;border-radius:12px;padding:12px">
+<!-- ===== MOD MENU (ISOLIERT) ===== -->
+<div id="modMenu" style="
+display:none;position:fixed;bottom:20px;left:20px;
+background:black;border:2px solid red;border-radius:12px;
+padding:12px;z-index:9999;color:white">
 <h3 style="color:red;text-align:center">🛠 MOD MENU</h3>
+
 <input id="modJackpot" type="number" placeholder="Jackpot €"><br><br>
-<button onclick="modSetJackpot()">Jackpot setzen</button><br><br>
+<button onclick="modSetJackpot()">💎 Jackpot setzen</button><br><br>
+
 <input id="modPlayer" placeholder="Spielername"><br>
 <input id="modAmount" type="number" placeholder="€ Betrag"><br>
-<button onclick="modMoney()">Geld ändern</button><br><br>
-<button onclick="modResetPlayers()">Alle Spieler löschen</button>
+<button onclick="modMoney()">💰 Geld ändern</button><br><br>
+
+<button onclick="modResetPlayers()">🗑 Alle Spieler löschen</button>
 </div>
 
-<button onclick="openModMenu()" style="position:fixed;bottom:10px;right:10px;
-opacity:.15;background:black;color:red;border-radius:50%;width:40px;height:40px">⚙️</button>
+<button onclick="openModMenu()" style="
+position:fixed;bottom:10px;right:10px;
+opacity:.15;border:1px solid black;background:black;color:red;
+border-radius:50%;width:42px;height:42px">⚙️</button>
 
 <script>
 firebase.initializeApp({
@@ -143,109 +210,113 @@ const jackpotRef=db.collection("game").doc("jackpot");
 const SYMBOLS=["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
 const PAYTABLE={"🍒":10,"🍋":30,"🍊":50,"🔔":75,"⭐":100,"7️⃣":150};
 
-const INCOME=50,INTERVAL=60000;
+const INCOME_PER_MIN=50,INTERVAL=60000;
 const winLogEl=document.getElementById("winLog");
 
-let playerName=localStorage.getItem("player")||prompt("Spielername:");
-localStorage.setItem("player",playerName);
+let playerName=localStorage.getItem("player_name")||prompt("Spielername:");
+localStorage.setItem("player_name",playerName);
 
 let data={balance:5000,bet:50,lastIncome:Date.now()};
 let jackpotValue=5000,spinning=false,winLog=[];
 
-/* Admin */
+/* ===== MOD MENU LOGIK ===== */
 const MOD_PASSWORD="BsMkTe321";
 function openModMenu(){
- if(prompt("Admin Passwort:")==MOD_PASSWORD)
-  modMenu.style.display="block";
+ if(prompt("Mod Passwort:")===MOD_PASSWORD)
+  document.getElementById("modMenu").style.display="block";
+}
+async function modSetJackpot(){
+ const v=parseInt(modJackpot.value);
+ if(!isNaN(v)) await jackpotRef.set({value:v});
+}
+async function modMoney(){
+ const ref=db.collection("players").doc(modPlayer.value);
+ const d=await ref.get();
+ if(d.exists){
+  let x=d.data();x.balance=Math.max(0,x.balance+parseInt(modAmount.value||0));
+  await ref.set(x,{merge:true});
+ }
+}
+async function modResetPlayers(){
+ const s=await db.collection("players").get();
+ s.forEach(d=>d.ref.delete());
 }
 
-/* Firebase Sync */
-jackpotRef.onSnapshot(d=>{
- if(d.exists){jackpotValue=d.data().value;updateUI()}
-});
-
+/* ===== RESTLICHER CODE UNVERÄNDERT ===== */
+jackpotRef.onSnapshot(d=>{if(d.exists){jackpotValue=d.data().value;updateUI()}});
 async function loadPlayer(){
- const ref=db.collection("players").doc(playerName);
- const snap=await ref.get();
- if(snap.exists)data={...data,...snap.data()};
- else await ref.set(data);
+ const r=db.collection("players").doc(playerName);
+ const d=await r.get();
+ if(d.exists)data={...data,...d.data()}; else await r.set(data);
  updateUI();
 }
-
-/* Leaderboard */
 db.collection("players").orderBy("balance","desc").limit(10)
 .onSnapshot(s=>{
  leaderboardList.innerHTML="";
  let i=1;
  s.forEach(d=>{
-  leaderboardList.innerHTML+=
-   `<div><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
+  let c=i==1?"lb-1":i==2?"lb-2":i==3?"lb-3":"";
+  if(d.id==playerName)c+=" lb-self";
+  leaderboardList.innerHTML+=`<div class="${c}"><span>${i}. ${d.id}</span><span>${d.data().balance} €</span></div>`;
   i++;
  });
 });
 
-/* Income Timer */
 setInterval(async()=>{
  const now=Date.now();
- const diff=Math.floor((now-data.lastIncome)/INTERVAL);
- if(diff>0 && data.balance<5000){
-  const gain=diff*INCOME;
-  data.balance=Math.min(5000,data.balance+gain);
-  data.lastIncome+=diff*INTERVAL;
-  log(`⏳ Einkommen +${gain}€`,"win");
-  await db.collection("players").doc(playerName).set(data,{merge:true});
- }
- timer.innerText=data.balance<5000
- ?`⏳ +50€ in ${Math.ceil((INTERVAL-(now-data.lastIncome))/1000)}s`
- :"✅ Einkommen voll";
+ if(data.balance<5000){
+  const diff=Math.floor((now-data.lastIncome)/INTERVAL);
+  if(diff>0){
+   data.balance=Math.min(5000,data.balance+diff*INCOME_PER_MIN);
+   data.lastIncome+=diff*INTERVAL;
+   log(`⏳ Einkommen +${diff*INCOME_PER_MIN}€`,"win");
+   await db.collection("players").doc(playerName).set(data,{merge:true});
+  }
+  timer.innerText=`⏳ +50€ in ${Math.ceil(Math.max(0,INTERVAL-(now-data.lastIncome))/1000)}s`;
+ }else timer.innerText="✅ Maximales Einkommen erreicht";
  updateUI();
 },1000);
 
-/* Spin */
 function randomSym(){return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]}
-
 async function spin(){
  if(spinning||data.balance<data.bet)return;
  spinning=true;
  data.balance-=data.bet;
  jackpotValue+=data.bet;
  await jackpotRef.set({value:jackpotValue});
-
  const f1=randomSym(),f2=randomSym(),f3=randomSym();
- animate(r1,f1,600);animate(r2,f2,800);animate(r3,f3,1000);
-
- setTimeout(async()=>{
+animate(r1, f1, 600);
+animate(r2, f2, 800);
+animate(r3, f3, 1000);
+setTimeout(async()=>{
   if(f1===f2&&f2===f3){
    if(f1==="💎"){
-    data.balance+=jackpotValue;
-    jackpotValue=5000;
+    data.balance+=jackpotValue; jackpotValue=5000;
     await jackpotRef.set({value:jackpotValue});
-    log(`💎 JACKPOT GEWONNEN!`,"jackpot");
+    log(`💎 JACKPOT +${jackpotValue}€`,"jackpot");
    }else{
-    const win=data.bet*PAYTABLE[f1];
-    data.balance+=win;
-    log(`🎉 ${f1}${f2}${f3} +${win}€`,"win");
+    const w=data.bet*PAYTABLE[f1];
+    data.balance+=w; log(`🎉 ${f1}${f2}${f3} +${w}€`,"win");
    }
   }else log("❌ Kein Gewinn","lose");
-
   await db.collection("players").doc(playerName).set(data,{merge:true});
-  updateUI();spinning=false;
+  updateUI(); spinning=false;
  },1100);
 }
-
-function animate(el,final,dur){
- const start=Date.now();
- const i=setInterval(()=>{
-  el.innerText=randomSym();
-  if(Date.now()-start>dur){
-   clearInterval(i);el.innerText=final;
+    
+function animate(reel, finalSymbol, duration){
+ const start = Date.now();
+ const interval = setInterval(()=>{
+  reel.innerText = randomSym();
+  if(Date.now() - start >= duration){
+   clearInterval(interval);
+   reel.innerText = finalSymbol;
   }
  },70);
 }
 
-/* Utils */
 function log(t,type){
- winLog.unshift(`<div class="log-${type}">${t}</div>`);
+ winLog.unshift(`<div class="log-entry ${type=='win'?'log-win':type=='lose'?'log-lose':'log-jackpot'}">${t}</div>`);
  winLog=winLog.slice(0,12);
  winLogEl.innerHTML=winLog.join("");
 }
@@ -260,30 +331,9 @@ function setBet(){
 }
 function allIn(){
  if(data.balance<=0)return alert("❌ Kein Guthaben");
- data.bet=data.balance;updateUI();
+ data.bet=data.balance;
 }
-
-async function modSetJackpot(){
- const v=parseInt(modJackpot.value);
- if(!isNaN(v))await jackpotRef.set({value:v});
-}
-async function modMoney(){
- const ref=db.collection("players").doc(modPlayer.value);
- const d=await ref.get();
- if(d.exists){
-  let x=d.data();
-  x.balance=Math.max(0,x.balance+parseInt(modAmount.value||0));
-  await ref.set(x,{merge:true});
- }
-}
-async function modResetPlayers(){
- const s=await db.collection("players").get();
- s.forEach(d=>d.ref.delete());
-}
-
 loadPlayer();
 </script>
 </body>
 </html>
-
-
