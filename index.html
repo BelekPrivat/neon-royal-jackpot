@@ -330,10 +330,11 @@ function setBet(){
  if(v>=50&&v<=data.balance)data.bet=v;
 }
 function allIn(){
- if(data.balance<=0)return alert("❌ Kein Guthaben");
+ if(data.balance<50)return alert("❌ Kein Guthaben");
  data.bet=data.balance;
 }
 loadPlayer();
 </script>
 </body>
 </html>
+
