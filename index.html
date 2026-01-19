@@ -272,10 +272,13 @@ async function savePlayer(){
  .doc(playerUID)
  .set(data,{merge:true});
 }
+Object.freeze(firebase);
+Object.freeze(db);
 
 </script>
 </body>
 </html>
+
 
 
 
