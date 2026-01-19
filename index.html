@@ -73,6 +73,9 @@ firebase.initializeApp({
  projectId:"slot-site-dce13"
 });
 const db=firebase.firestore();
+ 
+const winLogEl = document.getElementById("winLog");
+
 const jackpotRef=db.collection("game").doc("jackpot");
 
 const SYMBOLS=["🍒","🍋","🍊","🔔","⭐","7️⃣","💎"];
@@ -132,31 +135,53 @@ setInterval(()=>{
 /* ===== SPIN ===== */
 function randomSym(){return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]}
 async function spin(){
- if(spinning||data.balance<data.bet)return;
- spinning=true;
- data.balance-=data.bet;
- jackpotValue+=data.bet;
- await jackpotRef.set({value:jackpotValue});
- const f1=randomSym(),f2=randomSym(),f3=randomSym();
- animate(r1,f1,600);animate(r2,f2,800);animate(r3,f3,1000);
- setTimeout(async()=>{
-  if(f1===f2&&f2===f3){
-   if(f1==="💎"){
-    data.balance+=jackpotValue;
-    jackpotValue=5000;
-    await jackpotRef.set({value:jackpotValue});
-    log(`💎 JACKPOT +${jackpotValue}€`,"jackpot");
-   }else{
-    const w=data.bet*PAYTABLE[f1];
-    data.balance+=w;
-    log(`🎉 Gewinn +${w}€`,"win");
+ if(spinning) return;
+ if(data.balance < data.bet){
+  alert("❌ Nicht genug Guthaben");
+  return;
+ }
+
+ spinning = true;
+
+ try{
+  data.balance -= data.bet;
+  jackpotValue += data.bet;
+
+  await jackpotRef.set({value: jackpotValue});
+
+  const f1=randomSym(), f2=randomSym(), f3=randomSym();
+  animate(r1,f1,600);
+  animate(r2,f2,800);
+  animate(r3,f3,1000);
+
+  setTimeout(async()=>{
+   if(f1===f2 && f2===f3){
+    if(f1==="💎"){
+     const win = jackpotValue;
+     data.balance += win;
+     jackpotValue = 5000;
+     await jackpotRef.set({value: jackpotValue});
+     log(`💎 JACKPOT +${win}€`, "jackpot");
+    } else {
+     const win = data.bet * PAYTABLE[f1];
+     data.balance += win;
+     log(`🎉 Gewinn +${win}€`, "win");
+    }
+   } else {
+    log("❌ Kein Gewinn", "lose");
    }
-  }else log("❌ Kein Gewinn","lose");
-  savePlayer();
-  updateUI();
-  spinning=false;
- },1100);
+
+   await savePlayer();
+   updateUI();
+   spinning = false;
+  },1100);
+
+ } catch(e){
+  console.error(e);
+  spinning = false;
+ }
 }
+
 
 /* ===== UTIL ===== */
 function animate(reel,sym,d){
@@ -166,10 +191,14 @@ function animate(reel,sym,d){
   if(Date.now()-s>=d){clearInterval(i);reel.innerText=sym;}
  },70);
 }
-function log(t,type){
- winLog.unshift(`<div class="${type}">${t}</div>`);
- winLog=winLog.slice(0,12);
- winLogEl.innerHTML=winLog.join("");
+function log(text, type){
+ let cls = "log-win";
+ if(type==="lose") cls="log-lose";
+ if(type==="jackpot") cls="log-jackpot";
+
+ winLog.unshift(`<div class="log-entry ${cls}">${text}</div>`);
+ winLog = winLog.slice(0,12);
+ winLogEl.innerHTML = winLog.join("");
 }
 function updateUI(){
  status.innerText=`👤 ${playerName}`;
@@ -184,9 +213,13 @@ function allIn(){
  if(data.balance<50)return alert("❌ Kein Guthaben");
  data.bet=data.balance;
 }
-function savePlayer(){
- db.collection("players").doc(playerName).set(data,{merge:true});
+async function savePlayer(){
+ await db.collection("players")
+ .doc(playerName)
+ .set(data,{merge:true});
 }
+
 </script>
 </body>
 </html>
+
