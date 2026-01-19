@@ -32,6 +32,12 @@ h1{color:gold;font-size:2.6rem;text-shadow:0 0 12px gold}
 .lb-1{color:gold}.lb-2{color:silver}.lb-3{color:#cd7f32}.lb-self{border-left:3px solid cyan}
 #winLog{min-height:320px;max-height:320px;overflow-y:auto}
 .log-win{color:#00ff7f}.log-lose{color:#ff4c4c}.log-jackpot{color:gold}
+ 
+#paytable table{width:100%;border-collapse:collapse}
+#paytable th,#paytable td{text-align:center;padding:6px}
+#paytable th{color:gold;border-bottom:1px solid gold}
+#paytable tr:not(:last-child) td{border-bottom:1px solid rgba(255,215,0,.25)}
+ 
 </style>
 </head>
 
@@ -236,5 +242,6 @@ async function savePlayer(){
 </script>
 </body>
 </html>
+
 
 
